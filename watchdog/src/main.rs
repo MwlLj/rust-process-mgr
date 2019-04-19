@@ -45,11 +45,17 @@ fn main() {
     }
     println!("--------http-load-balance.exe--------");
 
+    if let Ok(_) = Command::new("cfgs")
+    .env("PATH", "/data/local/deviceservice/miscroservice")
+    .current_dir("/data/local/deviceservice/miscroservice")
+    .spawn() {
+        println!("ok");
+    }
+
     system.refresh_all();
     println!("--------cfgs--------");
     for proc_ in system.get_process_by_name("cfgs") {
         println!("{} => status: {:?}", proc_.name(), proc_.status());
-        proc_.kill(sysinfo::Signal::Kill);
     }
     println!("--------cfgs--------");
 }
