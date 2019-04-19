@@ -2,6 +2,7 @@ use std::process::Command;
 use sysinfo::{ProcessExt, SystemExt};
 
 fn main() {
+    println!("0");
     let mut system = sysinfo::System::new();
 
     // First we update all information of our system struct.
