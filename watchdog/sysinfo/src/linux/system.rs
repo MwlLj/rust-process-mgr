@@ -347,8 +347,10 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
             println!("pid == 0 start");
             let proc_list = Wrap(UnsafeCell::new(proc_list));
             println!("after Wrap(UnsafeCell::new(proc_list))");
-            folders.par_iter()
-                   .filter_map(|e| {
+            println!("folders.par_iter() start");
+            let mut parIter = folders.par_iter();
+            println!("folders.par_iter() end");
+            parIter.filter_map(|e| {
                         println!(" folders.par_iter().filter_map");
                        if let Ok(p) = _get_process_data(e.as_path(),
                                                         proc_list.get(),
