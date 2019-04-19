@@ -324,6 +324,7 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
                                  pid: Pid) -> bool {
     println!("refresh_procs start");
     if let Ok(d) = fs::read_dir(path.as_ref()) {
+        println!("read_dir true start");
         let mut folders = d.filter_map(|entry| {
             if let Ok(entry) = entry {
                 let entry = entry.path();
@@ -337,7 +338,9 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
                 None
             }
         }).collect::<Vec<_>>();
+        println!("read_dir true end");
         if pid == 0 {
+            println!("pid == 0 start");
             let proc_list = Wrap(UnsafeCell::new(proc_list));
             folders.par_iter()
                    .filter_map(|e| {
@@ -345,18 +348,23 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
                                                         proc_list.get(),
                                                         page_size_kb,
                                                         pid) {
+                            println!("pid == 0 true end");
                            p
                        } else {
+                            println!("pid == 0 false end");
                            None
                        }
                    })
                    .collect::<Vec<_>>()
         } else {
+            println!("pid != 0 start");
             folders.iter()
                    .filter_map(|e| {
                        if let Ok(p) = _get_process_data(e.as_path(), proc_list, page_size_kb, pid) {
+                            println!("pid != 0 true end");
                            p
                        } else {
+                            println!("pid != 0 false end");
                            None
                        }
                    })
