@@ -326,7 +326,7 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
         }).collect::<Vec<_>>();
         if pid == 0 {
             let proc_list = Wrap(UnsafeCell::new(proc_list));
-            folders.par_iter().parIter.filter_map(|e| {
+            folders.par_iter().filter_map(|e| {
                        if let Ok(p) = _get_process_data(e.as_path(),
                                                         proc_list.get(),
                                                         page_size_kb,
