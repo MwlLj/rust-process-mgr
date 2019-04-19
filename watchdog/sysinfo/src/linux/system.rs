@@ -51,7 +51,6 @@ pub struct System {
 
 impl System {
     fn clear_procs(&mut self) {
-        println!("clear_procs start");
         if !self.processors.is_empty() {
             let (new, old) = get_raw_times(&self.processors[0]);
             let total_time = (if old > new { 1 } else { new - old }) as f32;
@@ -69,11 +68,9 @@ impl System {
                 self.process_list.tasks.remove(&pid);
             }
         }
-        println!("clear_procs end");
     }
 
     fn refresh_processors(&mut self, limit: Option<u32>) {
-        println!("refresh_processors start");
         if let Ok(f) = File::open("/proc/stat") {
             let mut buf = BufReader::new(f);
             let mut i = 0;
@@ -123,13 +120,11 @@ impl System {
                 }
             }
         }
-        println!("refresh_processors end");
     }
 }
 
 impl SystemExt for System {
     fn new() -> System {
-        println!("new system start");
         let mut s = System {
             process_list: Process::new(0, None, 0),
             mem_total: 0,
@@ -143,13 +138,11 @@ impl SystemExt for System {
             network: network::new(),
             uptime: get_uptime(),
         };
-        println!("new system end");
         s.refresh_all();
         s
     }
 
     fn refresh_system(&mut self) {
-        println!("refresh_system start");
         self.uptime = get_uptime();
         for component in &mut self.temperatures {
             component.update();
@@ -170,16 +163,13 @@ impl SystemExt for System {
                 }
             }
         }
-        println!("refresh_system end");
         self.refresh_processors(None);
     }
 
     fn refresh_processes(&mut self) {
-        println!("refresh_processes start");
         if refresh_procs(&mut self.process_list, "/proc", self.page_size_kb, 0) {
             self.clear_procs();
         }
-        println!("refresh_processes end");
     }
 
     fn refresh_process(&mut self, pid: Pid) -> bool {
@@ -206,11 +196,9 @@ impl SystemExt for System {
     }
 
     fn refresh_disks(&mut self) {
-        println!("refresh_disks start");
         for disk in &mut self.disks {
             disk.update();
         }
-        println!("refresh_disks end");
     }
 
     fn refresh_disk_list(&mut self) {
@@ -218,9 +206,7 @@ impl SystemExt for System {
     }
 
     fn refresh_network(&mut self) {
-        println!("refresh_network start");
         network::update_network(&mut self.network);
-        println!("refresh_network end");
     }
 
     // COMMON PART
@@ -313,9 +299,7 @@ struct Wrap<'a>(UnsafeCell<&'a mut Process>);
 
 impl<'a> Wrap<'a> {
     fn get(&self) -> &'a mut Process {
-        println!("Wrap get start");
         unsafe {
-            println!("Wrap get end");
             *(self.0.get())
         }
     }
@@ -326,9 +310,7 @@ unsafe impl<'a> Sync for Wrap<'a> {}
 
 fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb: u64,
                                  pid: Pid) -> bool {
-    println!("refresh_procs start");
     if let Ok(d) = fs::read_dir(path.as_ref()) {
-        println!("read_dir true start");
         let mut folders = d.filter_map(|entry| {
             if let Ok(entry) = entry {
                 let entry = entry.path();
@@ -342,42 +324,26 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
                 None
             }
         }).collect::<Vec<_>>();
-        println!("read_dir true end");
         if pid == 0 {
-            println!("pid == 0 start");
             let proc_list = Wrap(UnsafeCell::new(proc_list));
-            println!("after Wrap(UnsafeCell::new(proc_list))");
-            println!("folders.par_iter() start");
             let mut parIter = folders.iter();
-            println!("folders.par_iter() end");
-            /*
-            for &item in parIter {
-                println!("parIter item");
-            }
-            */
             parIter.filter_map(|e| {
-                        println!(" folders.par_iter().filter_map");
                        if let Ok(p) = _get_process_data(e.as_path(),
                                                         proc_list.get(),
                                                         page_size_kb,
                                                         pid) {
-                            println!("pid == 0 true end");
                            p
                        } else {
-                            println!("pid == 0 false end");
                            None
                        }
                    })
                    .collect::<Vec<_>>()
         } else {
-            println!("pid != 0 start");
             folders.iter()
                    .filter_map(|e| {
                        if let Ok(p) = _get_process_data(e.as_path(), proc_list, page_size_kb, pid) {
-                            println!("pid != 0 true end");
                            p
                        } else {
-                            println!("pid != 0 false end");
                            None
                        }
                    })
@@ -385,10 +351,8 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
         }.into_iter().for_each(|e| {
             proc_list.tasks.insert(e.pid(), e);
         });
-        println!("refresh_procs true end");
         true
     } else {
-        println!("refresh_procs false end");
         false
     }
 }
@@ -419,7 +383,6 @@ macro_rules! unwrap_or_return {
 
 fn _get_process_data(path: &Path, proc_list: &mut Process, page_size_kb: u64,
                      pid: Pid) -> Result<Option<Process>, ()> {
-    println!("_get_process_data start");
     if let Some(Ok(nb)) = path.file_name().and_then(|x| x.to_str()).map(Pid::from_str) {
         if nb == pid {
             return Err(());
@@ -540,7 +503,6 @@ fn _get_process_data(path: &Path, proc_list: &mut Process, page_size_kb: u64,
             return Ok(Some(p));
         }
     }
-    println!("_get_process_data end");
     Err(())
 }
 
