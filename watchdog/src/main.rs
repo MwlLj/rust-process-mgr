@@ -1,7 +1,17 @@
+extern crate watchdog;
+
 use std::process::Command;
 use sysinfo::{ProcessExt, SystemExt};
 
+use watchdog::config::CConfig;
+
 fn main() {
+    let config = CConfig::new();
+    let info = config.read("watchdog.json");
+    for item in info.process_list {
+        println!("{:?}, {:?}", item.command, item.directory);
+    }
+    /*
     let mut system = sysinfo::System::new();
 
     // First we update all information of our system struct.
@@ -58,4 +68,5 @@ fn main() {
         println!("{} => status: {:?}", proc_.name(), proc_.status());
     }
     println!("--------cfgs--------");
+    */
 }

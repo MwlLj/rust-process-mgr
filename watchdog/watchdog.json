@@ -1,0 +1,8 @@
+{
+    "process_list": [
+        {
+            "command": "tests",
+            "directory": "."
+        }
+    ]
+}
