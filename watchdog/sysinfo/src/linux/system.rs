@@ -313,7 +313,9 @@ struct Wrap<'a>(UnsafeCell<&'a mut Process>);
 
 impl<'a> Wrap<'a> {
     fn get(&self) -> &'a mut Process {
+        println!("Wrap get start");
         unsafe { *(self.0.get()) }
+        println!("Wrap get end");
     }
 }
 
@@ -345,6 +347,7 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
             println!("after Wrap(UnsafeCell::new(proc_list))");
             folders.par_iter()
                    .filter_map(|e| {
+                        println!(" folders.par_iter().filter_map");
                        if let Ok(p) = _get_process_data(e.as_path(),
                                                         proc_list.get(),
                                                         page_size_kb,
