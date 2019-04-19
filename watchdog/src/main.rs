@@ -44,4 +44,12 @@ fn main() {
         proc_.kill(sysinfo::Signal::Kill);
     }
     println!("--------http-load-balance.exe--------");
+
+    system.refresh_all();
+    println!("--------cfgs--------");
+    for proc_ in system.get_process_by_name("cfgs") {
+        println!("{} => status: {:?}", proc_.name(), proc_.status());
+        proc_.kill(sysinfo::Signal::Kill);
+    }
+    println!("--------cfgs--------");
 }
