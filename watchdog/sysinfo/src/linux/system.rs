@@ -350,6 +350,9 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
             println!("folders.par_iter() start");
             let mut parIter = folders.par_iter();
             println!("folders.par_iter() end");
+            for &item in parIter {
+                println!("parIter item");
+            }
             parIter.filter_map(|e| {
                         println!(" folders.par_iter().filter_map");
                        if let Ok(p) = _get_process_data(e.as_path(),
