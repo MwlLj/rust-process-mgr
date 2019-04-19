@@ -314,8 +314,10 @@ struct Wrap<'a>(UnsafeCell<&'a mut Process>);
 impl<'a> Wrap<'a> {
     fn get(&self) -> &'a mut Process {
         println!("Wrap get start");
-        unsafe { *(self.0.get()) }
-        println!("Wrap get end");
+        unsafe {
+            println!("Wrap get end");
+            *(self.0.get())
+        }
     }
 }
 
