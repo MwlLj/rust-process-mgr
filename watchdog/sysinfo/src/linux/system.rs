@@ -51,6 +51,7 @@ pub struct System {
 
 impl System {
     fn clear_procs(&mut self) {
+        println!("clear_procs start");
         if !self.processors.is_empty() {
             let (new, old) = get_raw_times(&self.processors[0]);
             let total_time = (if old > new { 1 } else { new - old }) as f32;
@@ -68,6 +69,7 @@ impl System {
                 self.process_list.tasks.remove(&pid);
             }
         }
+        println!("clear_procs end");
     }
 
     fn refresh_processors(&mut self, limit: Option<u32>) {
@@ -173,9 +175,11 @@ impl SystemExt for System {
     }
 
     fn refresh_processes(&mut self) {
+        println!("refresh_processes start");
         if refresh_procs(&mut self.process_list, "/proc", self.page_size_kb, 0) {
             self.clear_procs();
         }
+        println!("refresh_processes end");
     }
 
     fn refresh_process(&mut self, pid: Pid) -> bool {
@@ -318,6 +322,7 @@ unsafe impl<'a> Sync for Wrap<'a> {}
 
 fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb: u64,
                                  pid: Pid) -> bool {
+    println!("refresh_procs start");
     if let Ok(d) = fs::read_dir(path.as_ref()) {
         let mut folders = d.filter_map(|entry| {
             if let Ok(entry) = entry {
@@ -363,6 +368,7 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
     } else {
         false
     }
+    println!("refresh_procs end");
 }
 
 fn update_time_and_memory(path: &Path, entry: &mut Process, parts: &[&str], page_size_kb: u64,
@@ -391,6 +397,7 @@ macro_rules! unwrap_or_return {
 
 fn _get_process_data(path: &Path, proc_list: &mut Process, page_size_kb: u64,
                      pid: Pid) -> Result<Option<Process>, ()> {
+    println!("_get_process_data start");
     if let Some(Ok(nb)) = path.file_name().and_then(|x| x.to_str()).map(Pid::from_str) {
         if nb == pid {
             return Err(());
@@ -511,6 +518,7 @@ fn _get_process_data(path: &Path, proc_list: &mut Process, page_size_kb: u64,
             return Ok(Some(p));
         }
     }
+    println!("_get_process_data end");
     Err(())
 }
 
