@@ -364,11 +364,12 @@ fn refresh_procs<P: AsRef<Path>>(proc_list: &mut Process, path: P, page_size_kb:
         }.into_iter().for_each(|e| {
             proc_list.tasks.insert(e.pid(), e);
         });
+        println!("refresh_procs true end");
         true
     } else {
+        println!("refresh_procs false end");
         false
     }
-    println!("refresh_procs end");
 }
 
 fn update_time_and_memory(path: &Path, entry: &mut Process, parts: &[&str], page_size_kb: u64,
