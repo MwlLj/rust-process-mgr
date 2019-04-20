@@ -13,11 +13,13 @@ pub struct CCheck {
 }
 
 impl CCheck {
-    pub fn start(&mut self, sleepTime: u32) {
-        loop {
-            self.findAndStartSubProcess();
-            thread::sleep_ms(sleepTime);
-        }
+    pub fn start(mut self, sleepTime: u32) {
+        thread::spawn(move || {
+            loop {
+                self.findAndStartSubProcess();
+                thread::sleep_ms(sleepTime);
+            }
+        });
     }
 
     fn findAndStartSubProcess(&mut self) {

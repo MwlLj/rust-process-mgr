@@ -14,14 +14,14 @@ use std::default::Default;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::json;
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct Process {
     pub name: String,
     pub args: Vec<String>,
     pub directory: String
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct ConfigInfo {
     pub process_list: Vec<Process>,
 }
