@@ -9,13 +9,15 @@ use std::io;
 use std::io::BufWriter;
 use std::io::BufReader;
 use std::io::prelude::*;
+use std::default::Default;
 
 use serde_derive::{Deserialize, Serialize};
 use serde_json::json;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Process {
-    pub command: String,
+    pub name: String,
+    pub args: Vec<String>,
     pub directory: String
 }
 
@@ -37,15 +39,17 @@ impl CConfig {
             println!("not exists, {}", path);
             if let Ok(f) = File::create(path) {
                 let mut writer = BufWriter::new(f);
-                let data = r#"
-                    {
-                        "process_list": [
-                            {
-                                "command": "tests",
-                                "directory": "."
-                            }
-                        ]
-                    }"#;
+                let data = r#"{
+    "process_list": [
+        {
+            "name": "log_server",
+            "args": [
+                "-port", "50005"
+            ],
+            "directory": "."
+        }
+    ]
+}"#;
                 writer.write(data.as_bytes()).unwrap();
                 writer.flush().unwrap();
                 configInfo = serde_json::from_str(data).unwrap();
