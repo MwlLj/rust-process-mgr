@@ -1,7 +1,4 @@
 extern crate watchdog;
-#[macro_use]
-extern crate tower_web;
-extern crate tokio;
 
 use std::thread;
 use std::sync::Arc;
@@ -9,9 +6,6 @@ use std::sync::Mutex;
 use std::default::Default;
 
 use rust_parse::cmd::CCmd;
-
-use tower_web::ServiceBuilder;
-use tokio::prelude::*;
 
 use watchdog::config::CConfig;
 use watchdog::config::Process;
