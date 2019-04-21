@@ -47,9 +47,6 @@ impl CServer {
                             content.push_str(&pro.pid().to_string());
                             // run time
                             let procStatrTime = pro.start_time() as i64;
-                            let dt = Local::now();
-                            let now = dt.timestamp();
-                            let sub = now - procStatrTime;
                             content.push_str(", runtime: ");
                             content.push_str(&self.calcSec2DHMS(procStatrTime));
                             content.push_str("';");
@@ -74,14 +71,16 @@ impl CServer {
 
     fn calcSec2DHMS(&self, sec: i64) -> String {
         let mut result = String::new();
-        let dur = Duration::seconds(sec);
-        result.push_str(&dur.num_days().to_string());
-        result.push_str("day, ");
-        result.push_str(&dur.num_hours().to_string());
-        result.push_str(":");
-        result.push_str(&dur.num_minutes().to_string());
-        result.push_str(":");
-        result.push_str(&dur.num_seconds().to_string());
+        // let dur = Duration::seconds(sec);
+        // result.push_str(&dur.num_days().to_string());
+        // result.push_str("day, ");
+        // result.push_str(&dur.num_hours().to_string());
+        // result.push_str(":");
+        // result.push_str(&dur.num_minutes().to_string());
+        // result.push_str(":");
+        // result.push_str(&dur.num_seconds().to_string());
+        result.push_str(&sec.to_string());
+        result.push_str("s");
         result
     }
 
