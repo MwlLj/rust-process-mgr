@@ -50,15 +50,8 @@ impl CServer {
                             let dt = Local::now();
                             let now = dt.timestamp();
                             let sub = now - procStatrTime;
-                            let dur = Duration::seconds(sub);
                             content.push_str(", runtime: ");
-                            content.push_str(&dur.num_days().to_string());
-                            content.push_str(":");
-                            content.push_str(&dur.num_hours().to_string());
-                            content.push_str(":");
-                            content.push_str(&dur.num_minutes().to_string());
-                            content.push_str(":");
-                            content.push_str(&dur.num_seconds().to_string());
+                            content.push_str(&self.calcSec2DHMS(sub));
                             content.push_str("';");
                         }
                         // name display
@@ -78,6 +71,13 @@ impl CServer {
 			println!("addr error");
 		}
 	}
+
+    fn calcSec2DHMS(&self, sec: i64) -> String {
+        let mut result = String::new();
+        result.push_str(&sec.to_string());
+        result.push_str("s");
+        result
+    }
 
 	pub fn new(processes: Arc<Vec<Process>>) -> CServer {
         let system = sysinfo::System::new();
