@@ -56,7 +56,7 @@ impl CRun {
             // start http server
             if let Ok(httpPort) = httpPort.parse::<u32>() {
                 println!("http server start success");
-                let server = CServer::new(processList.clone());
+                let mut server = CServer::new(processList.clone());
                 server.start(&httpHost, httpPort);
             }
         } else {
