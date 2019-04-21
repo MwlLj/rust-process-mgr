@@ -305,6 +305,7 @@ dependencies = [
 name = "watchdog"
 version = "0.1.0"
 dependencies = [
+ "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "rust_parse 0.1.0 (git+https://github.com/MwlLj/rust_parse)",
  "serde 1.0.90 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.90 (registry+https://github.com/rust-lang/crates.io-index)",

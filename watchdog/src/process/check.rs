@@ -27,12 +27,14 @@ impl CCheck {
         self.system.refresh_all();
         for item in &(*self.processes) {
             if self.system.get_process_by_name(&item.name).len() == 0 {
-                if let Ok(_) = Command::new(&item.name)
-                .args(&item.args)
-                .env("PATH", &item.directory)
-                .current_dir(&item.directory)
-                .spawn() {
-                    println!("{} start success", &item.name);
+                if item.isAuto == true {
+                    if let Ok(_) = Command::new(&item.name)
+                    .args(&item.args)
+                    .env("PATH", &item.directory)
+                    .current_dir(&item.directory)
+                    .spawn() {
+                        println!("{} start success", &item.name);
+                    }
                 }
             }
         }

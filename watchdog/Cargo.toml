@@ -9,6 +9,7 @@ serde_json = "*"
 serde = "*"
 serde_derive = "*"
 sysinfo = { path = "./sysinfo" }
+chrono = "0.4.6"
 
 rust_parse = { git = "https://github.com/MwlLj/rust_parse" }
 

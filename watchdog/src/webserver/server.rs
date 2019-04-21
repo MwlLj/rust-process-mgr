@@ -1,8 +1,11 @@
 extern crate tiny_http;
+extern crate chrono;
 
 use std::fs::File;
 use std::io::prelude::*;
 use std::sync::Arc;
+use chrono::prelude::*;
+use chrono::Duration;
 
 use tiny_http::{Server, Response, Method};
 
@@ -39,8 +42,23 @@ impl CServer {
                             // desc display
                             let pro = process[0];
                             content.push_str("obj.description = '");
+                            // pid
                             content.push_str("pid: ");
                             content.push_str(&pro.pid().to_string());
+                            // run time
+                            let procStatrTime = pro.start_time() as i64;
+                            let dt = Local::now();
+                            let now = dt.timestamp();
+                            let sub = now - procStatrTime;
+                            let dur = Duration::seconds(sub);
+                            content.push_str(", runtime: ");
+                            content.push_str(&dur.num_days().to_string());
+                            content.push_str(":");
+                            content.push_str(&dur.num_hours().to_string());
+                            content.push_str(":");
+                            content.push_str(&dur.num_minutes().to_string());
+                            content.push_str(":");
+                            content.push_str(&dur.num_seconds().to_string());
                             content.push_str("';");
                         }
                         // name display
@@ -52,6 +70,8 @@ impl CServer {
 
                     let response = Response::from_data(content);
                     request.respond(response);
+                } else if *request.method() == Method::Get && request.url() == "/jquery" {
+                    println!("jquert request");
                 }
 			}
 		} else {
