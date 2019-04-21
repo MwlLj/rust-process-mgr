@@ -27,6 +27,7 @@ pub const htmlStartDefine: &str = r#"
         </table>
     </div>
 </body>
+<script src="js/jquery-3.3.1.min.js"></script>
 <script type="text/javascript">
 
     var obj = {
@@ -46,7 +47,8 @@ pub const htmlStartDefine: &str = r#"
         var td2 = document.createElement("td");
         td2.innerHTML = obj.name;
         var td3 = document.createElement("td");
-        td3.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button><button id='st"+id+"' onclick='stop("+id+")'>stop</button>";
+        td3.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button>";
+        // td3.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button><button id='st"+id+"' onclick='stop("+id+")'>stop</button>";
         tr.appendChild(td0);
         tr.appendChild(td1);
         tr.appendChild(td2);
@@ -56,14 +58,18 @@ pub const htmlStartDefine: &str = r#"
 
     //重启
     function restart(id){
-       
         var tab=document.getElementById("table");        
-        tab.rows[id].children[0].innerHTML = 'start';
+        $.post("/restart", tab.rows[id].children[2].innerHTML, function(data){
+            tab.rows[id].children[0].innerHTML = 'starting';
+            window.location.reload()
+        });
     }
     //停止
     function stop(id){
         var tab=document.getElementById("table");        
-        tab.rows[id].children[0].innerHTML = 'stop';
+        $.post("/stop", tab.rows[id].children[2].innerHTML, function(data){
+            tab.rows[id].children[0].innerHTML = 'stopped';
+        });
     }
 
     function createRow(){
@@ -73,6 +79,7 @@ pub const htmlStartDefine: &str = r#"
 
     function getData(){
     }
+
 "#;
 
 pub const htmlEndDefine: &str = r#"

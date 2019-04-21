@@ -10,7 +10,7 @@ use chrono::Duration;
 use tiny_http::{Server, Response, Method};
 
 use std::process::Command;
-use sysinfo::{ProcessExt, SystemExt, System};
+use sysinfo::{ProcessExt, SystemExt, System, Signal};
 
 use super::super::config::Process;
 use super::super::templates::html;
@@ -27,7 +27,7 @@ impl CServer {
 		addr.push_str(":");
 		addr.push_str(&port.to_string());
 		if let Ok(server) = Server::http(addr) {
-			for request in server.incoming_requests() {
+			for mut request in server.incoming_requests() {
                 if *request.method() == Method::Get && request.url() == "/" {
                     self.system.refresh_all();
                     let mut content = String::new();
@@ -64,8 +64,58 @@ impl CServer {
 
                     let response = Response::from_data(content);
                     request.respond(response);
-                } else if *request.method() == Method::Get && request.url() == "/jquery" {
-                    println!("jquert request");
+                } else if *request.method() == Method::Post && request.url() == "/stop" {
+                    self.system.refresh_all();
+                    let mut processName = String::new();
+                    if let Ok(_) = request.as_reader().read_to_string(&mut processName) {
+                        let process = self.system.get_process_by_name(&processName);
+                        if process.len() == 0 {
+                        } else {
+                            let pro = process[0];
+                            if pro.kill(Signal::Kill) {
+                                if let Some(p) = Arc::get_mut(&mut self.processes) {
+                                    println!("some is not null");
+                                    for mut item in p {
+                                        if item.name == processName {
+                                            println!("set isAuto false");
+                                            (*item).isAuto = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                request.respond(Response::from_string("success"));
+                            }
+                        }
+                    }
+                } else if *request.method() == Method::Post && request.url() == "/restart" {
+                    self.system.refresh_all();
+                    let mut processName = String::new();
+                    if let Ok(_) = request.as_reader().read_to_string(&mut processName) {
+                        let process = self.system.get_process_by_name(&processName);
+                        if process.len() == 0 {
+                        } else {
+                            let pro = process[0];
+                            if pro.kill(Signal::Kill) {
+                                if let Some(p) = Arc::get_mut(&mut self.processes) {
+                                    println!("some is not null");
+                                    for mut item in p {
+                                        if item.name == processName {
+                                            println!("set isAuto false");
+                                            (*item).isAuto = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                request.respond(Response::from_string("success"));
+                            }
+                        }
+                    }
+                } else if *request.method() == Method::Get && request.url() == "/js/jquery-3.3.1.min.js" {
+                    if let Ok(file) = File::open("js/jquery-3.3.1.min.js") {
+                        request.respond(Response::from_file(file));
+                    }
+                } else if *request.method() == Method::Get && request.url() == "/favicon.ico" {
+                    request.respond(Response::from_string("ok"));
                 }
 			}
 		} else {
