@@ -18,7 +18,8 @@ use serde_json::json;
 pub struct Process {
     pub name: String,
     pub args: Vec<String>,
-    pub directory: String
+    pub directory: String,
+    pub isAuto: bool
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -46,7 +47,8 @@ impl CConfig {
             "args": [
                 "-port", "50005"
             ],
-            "directory": "."
+            "directory": ".",
+            "isAuto": true
         }
     ]
 }"#;

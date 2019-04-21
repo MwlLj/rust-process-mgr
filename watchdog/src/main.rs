@@ -49,13 +49,14 @@ impl CRun {
         self.config = config.read(&configFile);
 
         if let Ok(checkTime) = checkTime.parse::<u32>() {
+            let processList = Arc::new(self.config.process_list);
             // start check
-            let mut check = CCheck::new(self.config.process_list.clone());
+            let mut check = CCheck::new(processList.clone());
             check.start(checkTime);
             // start http server
             if let Ok(httpPort) = httpPort.parse::<u32>() {
                 println!("http server start success");
-                let server = CServer::new(self.config.process_list.clone());
+                let server = CServer::new(processList.clone());
                 server.start(&httpHost, httpPort);
             }
         } else {
