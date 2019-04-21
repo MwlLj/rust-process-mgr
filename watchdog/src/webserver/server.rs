@@ -51,7 +51,7 @@ impl CServer {
                             let now = dt.timestamp();
                             let sub = now - procStatrTime;
                             content.push_str(", runtime: ");
-                            content.push_str(&self.calcSec2DHMS(sub));
+                            content.push_str(&self.calcSec2DHMS(procStatrTime));
                             content.push_str("';");
                         }
                         // name display
@@ -74,8 +74,14 @@ impl CServer {
 
     fn calcSec2DHMS(&self, sec: i64) -> String {
         let mut result = String::new();
-        result.push_str(&sec.to_string());
-        result.push_str("s");
+        let dur = Duration::seconds(sec);
+        result.push_str(&dur.num_days().to_string());
+        result.push_str("day, ");
+        result.push_str(&dur.num_hours().to_string());
+        result.push_str(":");
+        result.push_str(&dur.num_minutes().to_string());
+        result.push_str(":");
+        result.push_str(&dur.num_seconds().to_string());
         result
     }
 
