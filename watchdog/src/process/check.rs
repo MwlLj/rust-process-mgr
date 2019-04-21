@@ -9,7 +9,7 @@ use sysinfo::{ProcessExt, SystemExt, System};
 use super::super::config::Process;
 
 pub struct CCheck {
-    system: System,
+    system: Arc<System>,
     processes: Arc<Vec<Process>>
 }
 
@@ -24,7 +24,7 @@ impl CCheck {
     }
 
     fn findAndStartSubProcess(&mut self) {
-        self.system.refresh_all();
+        Arc::get_mut(&mut self.system).unwrap().refresh_all();
         for item in &(*self.processes) {
             if self.system.get_process_by_name(&item.name).len() == 0 {
                 if item.isAuto == true {
@@ -40,8 +40,7 @@ impl CCheck {
         }
     }
 
-    pub fn new(processes: Arc<Vec<Process>>) -> CCheck {
-        let system = sysinfo::System::new();
+    pub fn new(system: Arc<System>, processes: Arc<Vec<Process>>) -> CCheck {
         let check = CCheck{
             system: system,
             processes: processes
