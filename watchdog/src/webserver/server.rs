@@ -56,7 +56,7 @@ impl CServer {
                             {
                                 procStatrTime = pro.start_time() as i64;
                             }
-                            // #[cfg(target_os="linux")]
+                            #[cfg(target_os="linux")]
                             {
                                 let pid = pro.pid() as i32;
                                 let mut path = String::new();
