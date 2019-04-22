@@ -60,9 +60,10 @@ impl CServer {
                             {
                                 let pid = pro.pid() as i32;
                                 let mut dir = String::new();
-                                dir.push_str("/proc/");
-                                dir.push_str(&pid.to_string());
-                                dir.push_str("/status");
+                                // dir.push_str("/proc/");
+                                // dir.push_str(&pid.to_string());
+                                // dir.push_str("/status");
+                                dir.push_str("/data/local/deviceservice/miscroservice/cfgs");
                                 println!("dir: {:?}", dir);
                                 if let Ok(metadata) = fs::metadata(dir) {
                                     println!("get metadata success");
