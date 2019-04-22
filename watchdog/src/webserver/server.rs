@@ -57,37 +57,28 @@ impl CServer {
                             {
                                 procStatrTime = pro.start_time() as i64;
                             }
-                            #[cfg(target_os="arm")]
-                            {
-                                println!("arm platform");
-                            }
                             #[cfg(target_os="linux")]
                             {
                                 let pid = pro.pid() as i32;
                                 let mut path = String::new();
                                 path.push_str("/proc/");
                                 path.push_str(&pid.to_string());
-                                println!("{:?}", path);
                                 if let Ok(output) = Command::new("stat")
                                     .arg(path)
                                     .stdout(Stdio::piped())
                                     .output() {
                                     let result = String::from_utf8_lossy(&output.stdout);
                                     let lines: Vec<&str> = result.split("\n").collect();
-                                    println!("{:?}", &lines);
                                     if lines.len() >= 5 {
                                         let access = lines[4].trim();
                                         let (key, value) = access.split_at("Access:".to_string().len());
-                                        println!("{:?}", &value);
                                         let v = value.trim();
                                         let timePA: Vec<&str> = v.split(".").collect();
-                                        println!("{:?}", &timePA);
                                         if timePA.len() >= 1 {
                                             let t = timePA[0];
                                             let parse_from_str = NaiveDateTime::parse_from_str;
                                             if let Ok(d) = parse_from_str(t, "%Y-%m-%d %H:%M:%S") {
                                                 procStatrTime = d.timestamp();
-                                                println!("{:?}", &procStatrTime);
                                             }
                                         }
                                     }
