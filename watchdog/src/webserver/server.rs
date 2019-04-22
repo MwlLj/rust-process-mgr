@@ -62,6 +62,7 @@ impl CServer {
                                 let mut dir = String::new();
                                 dir.push_str("/proc/");
                                 dir.push_str(&pid.to_string());
+                                dir.push_str("/status");
                                 println!("dir: {:?}", dir);
                                 if let Ok(metadata) = fs::metadata(dir) {
                                     println!("get metadata success");
