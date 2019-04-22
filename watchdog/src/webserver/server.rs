@@ -4,10 +4,11 @@ extern crate chrono;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::BufReader;
 use std::sync::Arc;
 use std::time;
 use chrono::prelude::*;
-use chrono::Duration;
+use chrono::{Duration, DateTime};
 
 use tiny_http::{Server, Response, Method};
 
@@ -68,7 +69,25 @@ impl CServer {
                                     .stdout(Stdio::piped())
                                     .output() {
                                     let result = String::from_utf8_lossy(&output.stdout);
-                                    println!("{:?}", result);
+                                    let lines: Vec<&str> = result.split("\n").collect();
+                                    println!("{:?}", &lines);
+                                    if lines.len() >= 5 {
+                                        let access = lines[4].trim();
+                                        let kv: Vec<&str> = access.split(":").collect();
+                                        println!("{:?}", &kv);
+                                        if kv.len() >= 2 {
+                                            let v = kv[1].trim();
+                                            let timePA: Vec<&str> = v.split(".").collect();
+                                            println!("{:?}", &timePA);
+                                            if timePA.len() >= 1 {
+                                                let t = timePA[0];
+                                                if let Ok(d) = chrono::DateTime::parse_from_str(t, "+%Y-%m-%d %H:%M:%S") {
+                                                    procStatrTime = d.timestamp();
+                                                    println!("{:?}", &procStatrTime);
+                                                }
+                                            }
+                                        }
+                                    }
                                 };
                                 // let pid = pro.pid() as i32;
                                 // let mut dir = String::new();
