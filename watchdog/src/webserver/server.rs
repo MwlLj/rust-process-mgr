@@ -1,9 +1,11 @@
 extern crate tiny_http;
 extern crate chrono;
 
+use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::sync::Arc;
+use std::time;
 use chrono::prelude::*;
 use chrono::Duration;
 
@@ -49,7 +51,25 @@ impl CServer {
                             content.push_str("pid: ");
                             content.push_str(&pro.pid().to_string());
                             // run time
-                            let procStatrTime = pro.start_time() as i64;
+                            let mut procStatrTime = 0;
+                            #[cfg(target_os="windows")]
+                            {
+                                procStatrTime = pro.start_time() as i64;
+                            }
+                            #[cfg(target_os="linux")]
+                            {
+                                let pid = pro.pid() as i32;
+                                let mut dir = String::new();
+                                dir.push_str("/proc/");
+                                dir.push_str(&pid.to_string());
+                                if let Ok(metadata) = fs::metadata(dir) {
+                                    if let Ok(t) = metadata.created() {
+                                        if let Ok(dur) = t.elapsed() {
+                                            procStatrTime = dur.as_secs() as i64;
+                                        }
+                                    }
+                                }
+                            }
                             let dt = Local::now();
                             let now = dt.timestamp();
                             let sub = now - procStatrTime;
