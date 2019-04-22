@@ -47,6 +47,7 @@ impl CCheck {
                 let ps = self.system.get_process_by_name(&item.name);
                 for it in ps {
                     let status = it.status();
+                    println!("{:?}", status);
                     if status == ProcessStatus::Zombie {
                         if it.kill(Signal::Child) {
                             if item.isAuto == true {
