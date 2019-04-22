@@ -1,5 +1,6 @@
 extern crate tiny_http;
 extern crate chrono;
+extern crate filetime;
 
 use std::fs;
 use std::fs::File;
@@ -8,6 +9,7 @@ use std::sync::Arc;
 use std::time;
 use chrono::prelude::*;
 use chrono::Duration;
+use filetime::FileTime;
 
 use tiny_http::{Server, Response, Method};
 
@@ -60,20 +62,21 @@ impl CServer {
                             {
                                 let pid = pro.pid() as i32;
                                 let mut dir = String::new();
-                                // dir.push_str("/proc/");
-                                // dir.push_str(&pid.to_string());
-                                // dir.push_str("/status");
-                                dir.push_str("/data/local/deviceservice/miscroservice/cfgs");
+                                dir.push_str("/proc/");
+                                dir.push_str(&pid.to_string());
+                                dir.push_str("/status");
                                 println!("dir: {:?}", dir);
                                 if let Ok(metadata) = fs::metadata(dir) {
                                     println!("get metadata success");
-                                    if let Ok(t) = metadata.created() {
+                                    if let Some(t) = FileTime::from_creation_time(&metadata) {
+                                    // if let Ok(t) = metadata.created() {
                                         println!("get t success");
-                                        if let Ok(dur) = t.elapsed() {
-                                            println!("get dur success");
-                                            procStatrTime = dur.as_secs() as i64;
-                                            println!("dur: {}", procStatrTime);
-                                        }
+                                        procStatrTime = t.seconds() as i64;
+                                        // if let Ok(dur) = t.elapsed() {
+                                        //     println!("get dur success");
+                                        //     procStatrTime = dur.as_secs() as i64;
+                                        //     println!("dur: {}", procStatrTime);
+                                        // }
                                     }
                                 }
                             }
