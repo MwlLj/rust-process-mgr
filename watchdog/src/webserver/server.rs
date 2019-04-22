@@ -11,7 +11,7 @@ use chrono::Duration;
 
 use tiny_http::{Server, Response, Method};
 
-use std::process::Command;
+use std::process::{Command, Stdio};
 use sysinfo::{ProcessExt, SystemExt, System, Signal};
 
 use super::super::config::Process;
@@ -59,17 +59,31 @@ impl CServer {
                             #[cfg(target_os="linux")]
                             {
                                 let pid = pro.pid() as i32;
-                                let mut dir = String::new();
-                                dir.push_str("/proc/");
-                                dir.push_str(&pid.to_string());
-                                dir.push_str("/status");
-                                if let Ok(metadata) = fs::metadata(dir) {
-                                    if let Ok(t) = metadata.created() {
-                                        if let Ok(dur) = t.elapsed() {
-                                            procStatrTime = dur.as_secs() as i64;
-                                        }
-                                    }
-                                }
+                                let mut stat = String::new();
+                                stat.push_str("stat ");
+                                stat.push_str("/proc/");
+                                stat.push_str(&pid.to_string());
+                                println!("{:?}", stat);
+                                if let Ok(output) = Command::new(stat)
+                                    .stdout(Stdio::piped())
+                                    .output() {
+                                    let result = String::from_utf8_lossy(&output.stdout);
+                                    println!("{:?}", result);
+                                } else {
+                                    println!("exe failed");
+                                };
+                                // let pid = pro.pid() as i32;
+                                // let mut dir = String::new();
+                                // dir.push_str("/proc/");
+                                // dir.push_str(&pid.to_string());
+                                // dir.push_str("/status");
+                                // if let Ok(metadata) = fs::metadata(dir) {
+                                //     if let Ok(t) = metadata.created() {
+                                //         if let Ok(dur) = t.elapsed() {
+                                //             procStatrTime = dur.as_secs() as i64;
+                                //         }
+                                //     }
+                                // }
                             }
                             let dt = Local::now();
                             let now = dt.timestamp();
