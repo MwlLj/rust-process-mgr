@@ -8,7 +8,7 @@ use std::io::BufReader;
 use std::sync::Arc;
 use std::time;
 use chrono::prelude::*;
-use chrono::{Duration, DateTime};
+use chrono::{Duration, DateTime, NaiveDateTime};
 
 use tiny_http::{Server, Response, Method};
 
@@ -57,6 +57,10 @@ impl CServer {
                             {
                                 procStatrTime = pro.start_time() as i64;
                             }
+                            #[cfg(target_os="arm")]
+                            {
+                                println!("arm platform");
+                            }
                             #[cfg(target_os="linux")]
                             {
                                 let pid = pro.pid() as i32;
@@ -80,7 +84,8 @@ impl CServer {
                                         println!("{:?}", &timePA);
                                         if timePA.len() >= 1 {
                                             let t = timePA[0];
-                                            if let Ok(d) = chrono::DateTime::parse_from_str(t, "+%Y-%m-%d %H:%M:%S") {
+                                            let parse_from_str = NaiveDateTime::parse_from_str;
+                                            if let Ok(d) = parse_from_str(t, "%Y-%m-%d %H:%M:%S") {
                                                 procStatrTime = d.timestamp();
                                                 println!("{:?}", &procStatrTime);
                                             }
