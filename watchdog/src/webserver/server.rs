@@ -73,18 +73,16 @@ impl CServer {
                                     println!("{:?}", &lines);
                                     if lines.len() >= 5 {
                                         let access = lines[4].trim();
-                                        let kv: Vec<&str> = access.split(":").collect();
-                                        println!("{:?}", &kv);
-                                        if kv.len() >= 2 {
-                                            let v = kv[1].trim();
-                                            let timePA: Vec<&str> = v.split(".").collect();
-                                            println!("{:?}", &timePA);
-                                            if timePA.len() >= 1 {
-                                                let t = timePA[0];
-                                                if let Ok(d) = chrono::DateTime::parse_from_str(t, "+%Y-%m-%d %H:%M:%S") {
-                                                    procStatrTime = d.timestamp();
-                                                    println!("{:?}", &procStatrTime);
-                                                }
+                                        let (key, value) = access.split_at("Access:".to_string().len());
+                                        println!("{:?}", &value);
+                                        let v = value.trim();
+                                        let timePA: Vec<&str> = v.split(".").collect();
+                                        println!("{:?}", &timePA);
+                                        if timePA.len() >= 1 {
+                                            let t = timePA[0];
+                                            if let Ok(d) = chrono::DateTime::parse_from_str(t, "+%Y-%m-%d %H:%M:%S") {
+                                                procStatrTime = d.timestamp();
+                                                println!("{:?}", &procStatrTime);
                                             }
                                         }
                                     }
