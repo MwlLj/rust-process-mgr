@@ -64,8 +64,11 @@ impl CServer {
                                 dir.push_str(&pid.to_string());
                                 println!("dir: {:?}", dir);
                                 if let Ok(metadata) = fs::metadata(dir) {
+                                    println!("get metadata success");
                                     if let Ok(t) = metadata.created() {
+                                        println!("get t success");
                                         if let Ok(dur) = t.elapsed() {
+                                            println!("get dur success");
                                             procStatrTime = dur.as_secs() as i64;
                                             println!("dur: {}", procStatrTime);
                                         }
