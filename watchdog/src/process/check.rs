@@ -60,7 +60,19 @@ impl CCheck {
                             let line = line.unwrap();
                             let v: Vec<&str> = line.split(":").collect();
                             if v[0] == "State" {
-                                println!("{:?}", v[1]);
+                                if v[1] == "zombie" {
+                                    if it.kill(Signal::Child) {
+                                        if item.isAuto == true {
+                                            if let Ok(_) = Command::new(&item.name)
+                                            .args(&item.args)
+                                            .env("PATH", &item.directory)
+                                            .current_dir(&item.directory)
+                                            .spawn() {
+                                                println!("{} start success", &item.name);
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     } else {
