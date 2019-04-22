@@ -65,7 +65,7 @@ impl CServer {
                                 stat.push_str(&pid.to_string());
                                 println!("{:?}", stat);
                                 if let Ok(output) = Command::new(stat)
-                                    .stdout(Stdio::piped())
+                                    // .stdout(Stdio::piped())
                                     .output() {
                                     let result = String::from_utf8_lossy(&output.stdout);
                                     println!("{:?}", result);
