@@ -62,10 +62,12 @@ impl CServer {
                                 let mut dir = String::new();
                                 dir.push_str("/proc/");
                                 dir.push_str(&pid.to_string());
+                                println!("dir: {:?}", dir);
                                 if let Ok(metadata) = fs::metadata(dir) {
                                     if let Ok(t) = metadata.created() {
                                         if let Ok(dur) = t.elapsed() {
                                             procStatrTime = dur.as_secs() as i64;
+                                            println!("dur: {}", procStatrTime);
                                         }
                                     }
                                 }
