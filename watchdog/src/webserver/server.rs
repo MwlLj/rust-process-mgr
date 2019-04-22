@@ -64,11 +64,11 @@ impl CServer {
                                 stat.push_str("/proc/");
                                 stat.push_str(&pid.to_string());
                                 println!("{:?}", stat);
-                                if let Ok(output) = Command::new(stat)
+                                if let Ok(output) = Command::new(stat) {
                                     // .stdout(Stdio::piped())
-                                    .output() {
-                                    let result = String::from_utf8_lossy(&output.stdout);
-                                    println!("{:?}", result);
+                                    // .output() {
+                                    // let result = String::from_utf8_lossy(&output.stdout);
+                                    // println!("{:?}", result);
                                 } else {
                                     println!("exe failed");
                                 };
