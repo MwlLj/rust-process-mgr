@@ -1,6 +1,5 @@
 extern crate tiny_http;
 extern crate chrono;
-extern crate filetime;
 
 use std::fs;
 use std::fs::File;
@@ -9,7 +8,6 @@ use std::sync::Arc;
 use std::time;
 use chrono::prelude::*;
 use chrono::Duration;
-use filetime::FileTime;
 
 use tiny_http::{Server, Response, Method};
 
@@ -65,18 +63,11 @@ impl CServer {
                                 dir.push_str("/proc/");
                                 dir.push_str(&pid.to_string());
                                 dir.push_str("/status");
-                                println!("dir: {:?}", dir);
                                 if let Ok(metadata) = fs::metadata(dir) {
-                                    println!("get metadata success");
-                                    if let Some(t) = FileTime::from_creation_time(&metadata) {
-                                    // if let Ok(t) = metadata.created() {
-                                        println!("get t success");
-                                        procStatrTime = t.seconds() as i64;
-                                        // if let Ok(dur) = t.elapsed() {
-                                        //     println!("get dur success");
-                                        //     procStatrTime = dur.as_secs() as i64;
-                                        //     println!("dur: {}", procStatrTime);
-                                        // }
+                                    if let Ok(t) = metadata.created() {
+                                        if let Ok(dur) = t.elapsed() {
+                                            procStatrTime = dur.as_secs() as i64;
+                                        }
                                     }
                                 }
                             }
