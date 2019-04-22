@@ -16,7 +16,8 @@ use super::super::config::Process;
 use super::super::templates::html;
 
 pub struct CServer {
-    system: Arc<System>,
+    // system: Arc<System>,
+    system: System,
 	processes: Arc<Vec<Process>>
 }
 
@@ -29,7 +30,8 @@ impl CServer {
 		if let Ok(server) = Server::http(addr) {
 			for mut request in server.incoming_requests() {
                 if *request.method() == Method::Get && request.url() == "/" {
-                    Arc::get_mut(&mut self.system).unwrap().refresh_all();
+                    // Arc::get_mut(&mut self.system).unwrap().refresh_all();
+                    self.system.refresh_all();
                     let mut content = String::new();
                     content.push_str(html::htmlStartDefine);
                     for item in &(*self.processes) {
@@ -65,7 +67,8 @@ impl CServer {
                     let response = Response::from_data(content);
                     request.respond(response);
                 } else if *request.method() == Method::Post && request.url() == "/stop" {
-                    Arc::get_mut(&mut self.system).unwrap().refresh_all();
+                    // Arc::get_mut(&mut self.system).unwrap().refresh_all();
+                    self.system.refresh_all();
                     let mut processName = String::new();
                     if let Ok(_) = request.as_reader().read_to_string(&mut processName) {
                         let process = self.system.get_process_by_name(&processName);
@@ -88,7 +91,8 @@ impl CServer {
                         }
                     }
                 } else if *request.method() == Method::Post && request.url() == "/restart" {
-                    Arc::get_mut(&mut self.system).unwrap().refresh_all();
+                    // Arc::get_mut(&mut self.system).unwrap().refresh_all();
+                    self.system.refresh_all();
                     let mut processName = String::new();
                     if let Ok(_) = request.as_reader().read_to_string(&mut processName) {
                         let process = self.system.get_process_by_name(&processName);
@@ -138,8 +142,8 @@ impl CServer {
         result
     }
 
-	pub fn new(system: Arc<System>, processes: Arc<Vec<Process>>) -> CServer {
-        // let system = sysinfo::System::new();
+	pub fn new(processes: Arc<Vec<Process>>) -> CServer {
+        let system = System::new();
 		let server = CServer{
             system: system,
 			processes: processes
