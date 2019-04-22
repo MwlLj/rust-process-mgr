@@ -7,6 +7,7 @@
 use std::collections::HashMap;
 use std::fmt::{self, Formatter, Debug};
 use std::path::{Path, PathBuf};
+use std::cmp::PartialEq;
 
 use libc::{c_int, gid_t, kill, uid_t};
 
@@ -14,7 +15,7 @@ use Pid;
 use ::ProcessExt;
 
 /// Enum describing the different status of a process.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ProcessStatus {
     /// Waiting in uninterruptible disk sleep.
     Idle,
