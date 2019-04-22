@@ -60,7 +60,7 @@ impl CCheck {
                             let line = line.unwrap();
                             let v: Vec<&str> = line.split(":").collect();
                             if v[0] == "State" {
-                                if v[1] == "zombie" {
+                                if v[1].contains("Z") {
                                     if it.kill(Signal::Child) {
                                         if item.isAuto == true {
                                             if let Ok(_) = Command::new(&item.name)
