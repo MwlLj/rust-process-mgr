@@ -28,33 +28,39 @@ impl CCheck {
         // Arc::get_mut(&mut self.system).unwrap().refresh_all();
         self.system.refresh_all();
         for item in &(*self.processes) {
-            // if self.system.get_process_by_name(&item.name).len() == 0 {
-            //     if item.isAuto == true {
-            //         if let Ok(_) = Command::new(&item.name)
-            //         .args(&item.args)
-            //         .env("PATH", &item.directory)
-            //         .current_dir(&item.directory)
-            //         .spawn() {
-            //             println!("{} start success", &item.name);
-            //         }
-            //     }
-            // }
-            let ps = self.system.get_process_by_name(&item.name);
-            for it in ps {
-                let status = it.status();
-                // if status == ProcessStatus::Zombie {
-                    if it.kill(Signal::Child) {
-                        if item.isAuto == true {
-                            if let Ok(_) = Command::new(&item.name)
-                            .args(&item.args)
-                            .env("PATH", &item.directory)
-                            .current_dir(&item.directory)
-                            .spawn() {
-                                println!("{} start success", &item.name);
+            #[cfg(target_os="windows")]
+            {
+                if self.system.get_process_by_name(&item.name).len() == 0 {
+                    if item.isAuto == true {
+                        if let Ok(_) = Command::new(&item.name)
+                        .args(&item.args)
+                        .env("PATH", &item.directory)
+                        .current_dir(&item.directory)
+                        .spawn() {
+                            println!("{} start success", &item.name);
+                        }
+                    }
+                }
+            }
+            #[cfg(target_os="linux")]
+            {
+                let ps = self.system.get_process_by_name(&item.name);
+                for it in ps {
+                    let status = it.status();
+                    if status == ProcessStatus::Zombie {
+                        if it.kill(Signal::Child) {
+                            if item.isAuto == true {
+                                if let Ok(_) = Command::new(&item.name)
+                                .args(&item.args)
+                                .env("PATH", &item.directory)
+                                .current_dir(&item.directory)
+                                .spawn() {
+                                    println!("{} start success", &item.name);
+                                }
                             }
                         }
                     }
-                // }
+                }
             }
         }
     }
