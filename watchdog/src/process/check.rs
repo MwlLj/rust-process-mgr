@@ -1,6 +1,9 @@
 extern crate sysinfo;
 
 use std::thread;
+use std::io::prelude::*;
+use std::fs::File;
+use std::io::BufReader;
 
 use std::process::Command;
 use std::sync::Arc;
@@ -46,21 +49,36 @@ impl CCheck {
             {
                 let ps = self.system.get_process_by_name(&item.name);
                 for it in ps {
-                    let status = it.status();
-                    println!("{:?}", status);
-                    if status == ProcessStatus::Zombie {
-                        if it.kill(Signal::Child) {
-                            if item.isAuto == true {
-                                if let Ok(_) = Command::new(&item.name)
-                                .args(&item.args)
-                                .env("PATH", &item.directory)
-                                .current_dir(&item.directory)
-                                .spawn() {
-                                    println!("{} start success", &item.name);
-                                }
+                    let pid = it.pid() as i32;
+                    let mut dir = String::new();
+                    dir.push_str("/proc/");
+                    dir.push_str(&pid.to_string());
+                    dir.push_str("/status");
+                    if let Ok(f) = File::open(dir) {
+                        let mut buf = BufReader::new(f);
+                        for line in buf.lines() {
+                            let line = line.unwrap();
+                            let v: Vec<&str> = line.split(":").collect();
+                            if v[0] == "Status" {
+                                println!("{:?}", v[1]);
                             }
                         }
                     }
+                    // let status = it.status();
+                    // println!("{:?}", status);
+                    // if status == ProcessStatus::Zombie {
+                    //     if it.kill(Signal::Child) {
+                    //         if item.isAuto == true {
+                    //             if let Ok(_) = Command::new(&item.name)
+                    //             .args(&item.args)
+                    //             .env("PATH", &item.directory)
+                    //             .current_dir(&item.directory)
+                    //             .spawn() {
+                    //                 println!("{} start success", &item.name);
+                    //             }
+                    //         }
+                    //     }
+                    // }
                 }
                 if self.system.get_process_by_name(&item.name).len() == 0 {
                     if item.isAuto == true {
