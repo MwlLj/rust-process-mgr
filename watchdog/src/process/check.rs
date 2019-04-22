@@ -54,6 +54,7 @@ impl CCheck {
                     dir.push_str("/proc/");
                     dir.push_str(&pid.to_string());
                     dir.push_str("/status");
+                    println!("{:?}", dir);
                     if let Ok(f) = File::open(dir) {
                         let mut buf = BufReader::new(f);
                         for line in buf.lines() {
