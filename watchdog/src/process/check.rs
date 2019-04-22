@@ -56,6 +56,7 @@ impl CCheck {
                     dir.push_str("/status");
                     println!("{:?}", dir);
                     if let Ok(f) = File::open(dir) {
+                        println!("open success");
                         let mut buf = BufReader::new(f);
                         for line in buf.lines() {
                             let line = line.unwrap();
@@ -64,6 +65,8 @@ impl CCheck {
                                 println!("{:?}", v[1]);
                             }
                         }
+                    } else {
+                        println!("open error");
                     }
                     // let status = it.status();
                     // println!("{:?}", status);
