@@ -58,12 +58,7 @@ impl CServer {
                                 content.push_str(&pro.pid().to_string());
                                 // run time
                                 let mut procStatrTime = 0;
-                                #[cfg(target_os="windows")]
-                                {
-                                    procStatrTime = pro.start_time() as i64;
-                                }
-                                #[cfg(target_os="linux")]
-                                {
+                                if (cfg!(all(target_os="linux", target_arch="arm"))) {
                                     let pid = pro.pid() as i32;
                                     let mut path = String::new();
                                     path.push_str("/proc/");
@@ -100,6 +95,8 @@ impl CServer {
                                     //         }
                                     //     }
                                     // }
+                                } else {
+                                    procStatrTime = pro.start_time() as i64;
                                 }
                                 let dt = Local::now();
                                 let now = dt.timestamp();
