@@ -5,7 +5,7 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time;
 use chrono::prelude::*;
 use chrono::{Duration, DateTime, NaiveDateTime};
@@ -15,13 +15,15 @@ use tiny_http::{Server, Response, Method};
 use std::process::{Command, Stdio};
 use sysinfo::{ProcessExt, SystemExt, System, Signal};
 
+use std::collections::VecDeque;
+
 use super::super::config::Process;
 use super::super::templates::html;
 
 pub struct CServer {
     // system: Arc<System>,
     system: System,
-	processes: Arc<Vec<Process>>
+	processes: Arc<Mutex<VecDeque<Process>>>
 }
 
 impl CServer {
@@ -42,73 +44,75 @@ impl CServer {
                         self.system.refresh_all();
                         let mut content = String::new();
                         content.push_str(html::htmlStartDefine);
-                        for item in &(*self.processes) {
-                            // state display
-                            let process = self.system.get_process_by_name(&item.name);
-                            if process.len() == 0 {
-                                content.push_str("obj.state = 'stopped';");
-                                content.push_str("obj.description = 'unknow';");
-                            } else {
-                                content.push_str("obj.state = 'running';");
-                                // desc display
-                                let pro = process[0];
-                                content.push_str("obj.description = '");
-                                // pid
-                                content.push_str("pid: ");
-                                content.push_str(&pro.pid().to_string());
-                                // run time
-                                let mut procStatrTime = 0;
-                                if (cfg!(all(target_os="linux", target_arch="arm"))) {
-                                    let pid = pro.pid() as i32;
-                                    let mut path = String::new();
-                                    path.push_str("/proc/");
-                                    path.push_str(&pid.to_string());
-                                    if let Ok(output) = Command::new("stat")
-                                        .arg(path)
-                                        .stdout(Stdio::piped())
-                                        .output() {
-                                        let result = String::from_utf8_lossy(&output.stdout);
-                                        let lines: Vec<&str> = result.split("\n").collect();
-                                        if lines.len() >= 5 {
-                                            let access = lines[4].trim();
-                                            let (key, value) = access.split_at("Access:".to_string().len());
-                                            let v = value.trim();
-                                            let timePA: Vec<&str> = v.split(".").collect();
-                                            if timePA.len() >= 1 {
-                                                let t = timePA[0];
-                                                let parse_from_str = NaiveDateTime::parse_from_str;
-                                                if let Ok(d) = parse_from_str(t, "%Y-%m-%d %H:%M:%S") {
-                                                    procStatrTime = d.timestamp();
+                        if let Ok(p) = self.processes.lock() {
+                            for item in &(*p) {
+                                // state display
+                                let process = self.system.get_process_by_name(&item.name);
+                                if process.len() == 0 {
+                                    content.push_str("obj.state = 'stopped';");
+                                    content.push_str("obj.description = 'unknow';");
+                                } else {
+                                    content.push_str("obj.state = 'running';");
+                                    // desc display
+                                    let pro = process[0];
+                                    content.push_str("obj.description = '");
+                                    // pid
+                                    content.push_str("pid: ");
+                                    content.push_str(&pro.pid().to_string());
+                                    // run time
+                                    let mut procStatrTime = 0;
+                                    if (cfg!(all(target_os="linux", target_arch="arm"))) {
+                                        let pid = pro.pid() as i32;
+                                        let mut path = String::new();
+                                        path.push_str("/proc/");
+                                        path.push_str(&pid.to_string());
+                                        if let Ok(output) = Command::new("stat")
+                                            .arg(path)
+                                            .stdout(Stdio::piped())
+                                            .output() {
+                                            let result = String::from_utf8_lossy(&output.stdout);
+                                            let lines: Vec<&str> = result.split("\n").collect();
+                                            if lines.len() >= 5 {
+                                                let access = lines[4].trim();
+                                                let (key, value) = access.split_at("Access:".to_string().len());
+                                                let v = value.trim();
+                                                let timePA: Vec<&str> = v.split(".").collect();
+                                                if timePA.len() >= 1 {
+                                                    let t = timePA[0];
+                                                    let parse_from_str = NaiveDateTime::parse_from_str;
+                                                    if let Ok(d) = parse_from_str(t, "%Y-%m-%d %H:%M:%S") {
+                                                        procStatrTime = d.timestamp();
+                                                    }
                                                 }
                                             }
-                                        }
-                                    };
-                                    // let pid = pro.pid() as i32;
-                                    // let mut dir = String::new();
-                                    // dir.push_str("/proc/");
-                                    // dir.push_str(&pid.to_string());
-                                    // dir.push_str("/status");
-                                    // if let Ok(metadata) = fs::metadata(dir) {
-                                    //     if let Ok(t) = metadata.created() {
-                                    //         if let Ok(dur) = t.elapsed() {
-                                    //             procStatrTime = dur.as_secs() as i64;
-                                    //         }
-                                    //     }
-                                    // }
-                                } else {
-                                    procStatrTime = pro.start_time() as i64;
+                                        };
+                                        // let pid = pro.pid() as i32;
+                                        // let mut dir = String::new();
+                                        // dir.push_str("/proc/");
+                                        // dir.push_str(&pid.to_string());
+                                        // dir.push_str("/status");
+                                        // if let Ok(metadata) = fs::metadata(dir) {
+                                        //     if let Ok(t) = metadata.created() {
+                                        //         if let Ok(dur) = t.elapsed() {
+                                        //             procStatrTime = dur.as_secs() as i64;
+                                        //         }
+                                        //     }
+                                        // }
+                                    } else {
+                                        procStatrTime = pro.start_time() as i64;
+                                    }
+                                    let dt = Local::now();
+                                    let now = dt.timestamp();
+                                    let sub = now - procStatrTime;
+                                    content.push_str(", runtime: ");
+                                    content.push_str(&self.calcSec2DHMS(sub));
+                                    content.push_str("';");
                                 }
-                                let dt = Local::now();
-                                let now = dt.timestamp();
-                                let sub = now - procStatrTime;
-                                content.push_str(", runtime: ");
-                                content.push_str(&self.calcSec2DHMS(sub));
-                                content.push_str("';");
+                                // name display
+                                content.push_str(&format!("obj.name = '{}';", item.name));
+                                // display
+                                content.push_str("create(obj);");
                             }
-                            // name display
-                            content.push_str(&format!("obj.name = '{}';", item.name));
-                            // display
-                            content.push_str("create(obj);");
                         }
                         content.push_str(html::htmlEndDefine);
 
@@ -125,14 +129,16 @@ impl CServer {
                         } else {
                             let pro = process[0];
                             if pro.kill(Signal::Kill) {
-                                if let Some(p) = Arc::get_mut(&mut self.processes) {
-                                    println!("some is not null");
-                                    for mut item in p {
+                                if let Ok(mut p) = self.processes.lock() {
+                                    let mut index = 0;
+                                    for item in &(*p) {
                                         if item.name == processName {
-                                            println!("set isAuto false");
-                                            (*item).isAuto = false;
                                             break;
                                         }
+                                        index += 1;
+                                    }
+                                    if let Some(p) = p.get_mut(index) {
+                                        (*p).isAuto = false;
                                     }
                                 }
                                 request.respond(Response::from_string("success"));
@@ -146,17 +152,32 @@ impl CServer {
                     if let Ok(_) = request.as_reader().read_to_string(&mut processName) {
                         let process = self.system.get_process_by_name(&processName);
                         if process.len() == 0 {
+                            if let Ok(mut p) = self.processes.lock() {
+                                let mut index = 0;
+                                for item in &(*p) {
+                                    if item.name == processName {
+                                        break;
+                                    }
+                                    index += 1;
+                                }
+                                if let Some(p) = p.get_mut(index) {
+                                    (*p).isAuto = true;
+                                }
+                            }
+                            request.respond(Response::from_string("success"));
                         } else {
                             let pro = process[0];
                             if pro.kill(Signal::Kill) {
-                                if let Some(p) = Arc::get_mut(&mut self.processes) {
-                                    println!("some is not null");
-                                    for mut item in p {
+                                if let Ok(mut p) = self.processes.lock() {
+                                    let mut index = 0;
+                                    for item in &(*p) {
                                         if item.name == processName {
-                                            println!("set isAuto false");
-                                            (*item).isAuto = false;
                                             break;
                                         }
+                                        index += 1;
+                                    }
+                                    if let Some(p) = p.get_mut(index) {
+                                        (*p).isAuto = true;
                                     }
                                 }
                                 request.respond(Response::from_string("success"));
@@ -191,7 +212,7 @@ impl CServer {
         result
     }
 
-	pub fn new(processes: Arc<Vec<Process>>) -> CServer {
+	pub fn new(processes: Arc<Mutex<VecDeque<Process>>>) -> CServer {
         let system = System::new();
 		let server = CServer{
             system: system,

@@ -10,6 +10,7 @@ use std::io::BufWriter;
 use std::io::BufReader;
 use std::io::prelude::*;
 use std::default::Default;
+use std::collections::VecDeque;
 
 use serde_derive::{Deserialize, Serialize};
 use serde_json::json;
@@ -24,7 +25,7 @@ pub struct Process {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ConfigInfo {
-    pub process_list: Vec<Process>,
+    pub process_list: VecDeque<Process>,
 }
 
 pub struct CConfig {
@@ -32,7 +33,7 @@ pub struct CConfig {
 
 impl CConfig {
     pub fn read(&self, path: &str) -> ConfigInfo {
-        let processes: Vec<Process> = Vec::new();
+        let processes: VecDeque<Process> = VecDeque::new();
         let mut configInfo = ConfigInfo{
             process_list: processes
         };

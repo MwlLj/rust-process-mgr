@@ -4,6 +4,7 @@ use std::thread;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::default::Default;
+use std::collections::VecDeque;
 
 use sysinfo::{ProcessExt, SystemExt, System};
 use rust_parse::cmd::CCmd;
@@ -58,7 +59,7 @@ impl CRun {
         // let system = sysinfo::System::new();
 
         if let Ok(checkTime) = checkTime.parse::<u32>() {
-            let mut processList = Arc::new(self.config.process_list);
+            let mut processList = Arc::new(Mutex::new(self.config.process_list));
             // let mut system = Arc::new(system);
             // start check
             let mut check = CCheck::new(processList.clone());

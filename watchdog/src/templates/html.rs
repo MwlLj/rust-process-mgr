@@ -47,8 +47,8 @@ pub const htmlStartDefine: &str = r#"
         var td2 = document.createElement("td");
         td2.innerHTML = obj.name;
         var td3 = document.createElement("td");
-        td3.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button>";
-        // td3.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button><button id='st"+id+"' onclick='stop("+id+")'>stop</button>";
+        // td3.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button>";
+        td3.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button><button id='st"+id+"' onclick='stop("+id+")'>stop</button>";
         tr.appendChild(td0);
         tr.appendChild(td1);
         tr.appendChild(td2);
