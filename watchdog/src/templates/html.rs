@@ -10,7 +10,11 @@ pub const htmlStartDefine: &str = r#"
 </head>
 
 <body>
-    <div class="wrap">
+    <div class="all">
+        <button type="" onclick='restartall()'>restartall</button>
+        <button type="" onclick='stopall()'>stopall</button>
+    </div>
+    <div class="wrap" style='margin-top: 10px'>
 <!--         <input type="button" value="新增" onclick="createRow()">
         <input type="button" value="删除" onclick="delRow()">
  -->
@@ -74,6 +78,18 @@ pub const htmlStartDefine: &str = r#"
 
     function createRow(){
         create(obj);
+    }
+
+    function restartall() {
+        $.post("/restart/all", "", function(data){
+            window.location.reload()
+        });
+    }
+
+    function stopall() {
+        $.post("/stop/all", "", function(data){
+            window.location.reload()
+        });
     }
 
 

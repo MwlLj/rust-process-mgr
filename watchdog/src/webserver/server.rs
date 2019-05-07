@@ -184,6 +184,43 @@ impl CServer {
                             }
                         }
                     }
+                } else if *request.method() == Method::Post && request.url() == "/stop/all" {
+                    println!("stop all");
+                    self.system.refresh_all();
+                    if let Ok(mut p) = self.processes.lock() {
+                        for mut item in &mut (*p) {
+                            let process = self.system.get_process_by_name(&item.name);
+                            if process.len() == 0 {
+                            } else {
+                                let pro = process[0];
+                                if pro.kill(Signal::Kill) {
+                                    (*item).isAuto = false;
+                                }
+                            }
+                        }
+                        request.respond(Response::from_string("success"));
+                    } else {
+                        request.respond(Response::from_string("error"));
+                    }
+                } else if *request.method() == Method::Post && request.url() == "/restart/all" {
+                    println!("restart all");
+                    self.system.refresh_all();
+                    if let Ok(mut p) = self.processes.lock() {
+                        for mut item in &mut (*p) {
+                            let process = self.system.get_process_by_name(&item.name);
+                            if process.len() == 0 {
+                                (*item).isAuto = true;
+                            } else {
+                                let pro = process[0];
+                                if pro.kill(Signal::Kill) {
+                                    (*item).isAuto = true;
+                                }
+                            }
+                        }
+                        request.respond(Response::from_string("success"));
+                    } else {
+                        request.respond(Response::from_string("error"));
+                    }
                 } else if *request.method() == Method::Get && request.url() == "/js/jquery-3.3.1.min.js" {
                     if let Ok(file) = File::open("js/jquery-3.3.1.min.js") {
                         request.respond(Response::from_file(file));
