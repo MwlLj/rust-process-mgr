@@ -10,15 +10,19 @@ use std::time;
 use chrono::prelude::*;
 use chrono::{Duration, DateTime, NaiveDateTime};
 
-use tiny_http::{Server, Response, Method};
+use tiny_http::{Server, Response, Method, Header, StatusCode};
 
 use std::process::{Command, Stdio};
 use sysinfo::{ProcessExt, SystemExt, System, Signal};
 
 use std::collections::VecDeque;
 
+use base64;
+
 use super::super::config::Process;
 use super::super::templates::html;
+
+const authorization: &'static str = "Authorization";
 
 pub struct CServer {
     // system: Arc<System>,
@@ -34,12 +38,53 @@ impl CServer {
 		addr.push_str(&port.to_string());
 		if let Ok(server) = Server::http(addr) {
 			for mut request in server.incoming_requests() {
-                if *request.method() == Method::Get && request.url().contains("/index?pwd=") {
-                    let url = request.url();
-                    let (_, pwd) = url.split_at("/index?pwd=".to_string().len());
+                let url = request.url();
+                if *request.method() == Method::Get && (url.contains("/index")) {
+                    // let (_, pwd) = url.split_at("/index?pwd=".to_string().len());
                     // Arc::get_mut(&mut self.system).unwrap().refresh_all();
-                    if inPwd != pwd {
+                    // if inPwd != pwd {
+                    let auth = CServer::findHeader(&request.headers(), authorization);
+                    println!("{:?}", auth);
+                    if *request.method() == Method::Get && auth == "" {
+                        let h = Header::from_bytes("WWW-Authenticate", r#"Basic realm="Dotcoo User Login""#).unwrap();
+                        let mut response = Response::from_data("");
+                        let mut response = response.with_status_code(401);
+                        response.add_header(h);
+                        request.respond(response);
+                        continue;
+                    }
+                    println!("{:?}", auth);
+                    let v: Vec<&str> = auth.split(" ").collect();
+                    if v.len() < 2 {
+                        request.respond(Response::from_data("auth error"));
+                        continue;
+                    }
+                    if v[0] != "Basic" {
+                        request.respond(Response::from_data("auth is not Basic"));
+                        continue;
+                    }
+                    let bytes = match base64::decode(v[1]) {
+                        Ok(b) => b,
+                        Err(_) => {
+                            request.respond(Response::from_data("decode base64 error"));
+                            continue;
+                        }
+                    };
+                    let s = match String::from_utf8(bytes) {
+                        Ok(s) => s,
+                        Err(_) => {
+                            request.respond(Response::from_data("from utf8 error"));
+                            continue;
+                        }
+                    };
+                    let v: Vec<&str> = s.split(":").collect();
+                    if v.len() < 2 {
+                        request.respond(Response::from_data("split by : error"));
+                        continue;
+                    }
+                    if inPwd != v[1] {
                         request.respond(Response::from_string("password error"));
+                        continue;
                     } else {
                         self.system.refresh_all();
                         let mut content = String::new();
@@ -257,4 +302,17 @@ impl CServer {
 		};
 		server
 	}
+}
+
+impl CServer {
+    fn findHeader(headers: &[Header], key: &'static str) -> String {
+        let mut value = String::new();
+        for item in headers {
+            if item.field.equiv(key) {
+                value = item.value.as_str().to_string();
+                break;
+            }
+        }
+        value
+    }
 }
