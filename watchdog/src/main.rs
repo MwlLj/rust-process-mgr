@@ -1,6 +1,7 @@
 extern crate watchdog;
 
 use std::thread;
+use std::time;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::default::Default;
@@ -9,11 +10,13 @@ use std::collections::VecDeque;
 use sysinfo::{ProcessExt, SystemExt, System};
 use rust_parse::cmd::CCmd;
 
-use watchdog::config::CConfig;
+use watchdog::config::file::CFile;
 use watchdog::config::Process;
 use watchdog::config::ConfigInfo;
 use watchdog::process::check::CCheck;
+use watchdog::process::control;
 use watchdog::webserver::server::CServer;
+use watchdog::core::dispatch::CDispatch;
 
 const argConfigFile: &str = "-cfg";
 const argCheckTime: &str = "-sleep";
@@ -27,6 +30,7 @@ struct CRun {
 
 impl CRun {
     fn run(mut self) {
+        /*
         let mut message = String::new();
         message.push_str("options:\n");
         message.push_str("\t-cfg: config file path, default watchdog.json, exp: watchdog.json\n");
@@ -52,14 +56,14 @@ impl CRun {
         let pwd = pwd.borrow();
 
         // read config file
-        let config = CConfig::new();
-        self.config = config.read(&configFile);
+        let config = CFile::new(&*configFile);
+        self.config = config.read();
 
         // init system
         // let system = sysinfo::System::new();
 
         if let Ok(checkTime) = checkTime.parse::<u32>() {
-            let mut processList = Arc::new(Mutex::new(self.config.process_list));
+            let mut processList = Arc::new(Mutex::new(self.config.processList));
             // let mut system = Arc::new(system);
             // start check
             let mut check = CCheck::new(processList.clone());
@@ -75,19 +79,73 @@ impl CRun {
         } else {
             println!("please input true sleep time");
         }
+        */
     }
 
     fn new() -> CRun {
         let run = CRun{
             config: ConfigInfo{
-                process_list: Default::default()
+                processList: Default::default()
             }
         };
         run
     }
 }
 
+fn startNewProcessTest() {
+    let mut processes = VecDeque::new();
+    let name = "test1";
+    let process = Process {
+        name: name.to_string(),
+        execute: "test".to_string(),
+        args: Vec::new(),
+        directory: ".".to_string(),
+        isAuto: true
+    };
+    processes.push_back(process);
+    let mut ctrl = control::CControl::new(Arc::new(Mutex::new(processes)));
+    ctrl.startNewProcess(&name);
+    thread::sleep(time::Duration::from_secs(5));
+    ctrl.stopProcess(&name);
+    loop {
+        thread::sleep(time::Duration::from_secs(60));
+        ctrl.cancelProcessAuto(&name, false);
+    }
+}
+
+fn dispatchTest() {
+    let mut dispatch = CDispatch::new("test.json");
+    dispatch.start();
+    loop {
+        thread::sleep(time::Duration::from_secs(1));
+        let runTime = dispatch.getRunStatus("test").unwrap();
+        println!("runtime: {:?}", &runTime);
+        /*
+        let mut processes = VecDeque::new();
+        let name = "test2";
+        let process = Process {
+            name: name.to_string(),
+            serviceUuid: "".to_string(),
+            args: Vec::new(),
+            directory: ".".to_string(),
+            isAuto: true
+        };
+        processes.push_back(process);
+        dispatch.reload(&mut processes);
+        */
+    }
+}
+
+fn webServerTest() {
+    let dispatch = CDispatch::new("test.json");
+    let mut server = CServer::new(dispatch);
+    server.start("123456", "0.0.0.0", 12345, "js/jquery-3.3.1.min.js");
+}
+
 fn main() {
-    let runner = CRun::new();
-    runner.run();
+    // let runner = CRun::new();
+    // runner.run();
+    // startNewProcessTest();
+    // dispatchTest();
+    webServerTest();
 }
