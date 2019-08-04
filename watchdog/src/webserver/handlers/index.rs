@@ -26,6 +26,16 @@ impl CIndexHandler {
                         content.push_str("obj.state = 'stopped';");
                         content.push_str("obj.description = 'unknow';");
                     },
+                    ProcessStatus::Failed(desc) => {
+                        content.push_str("obj.state = 'failed';");
+                        content.push_str("obj.description = 'failed: ");
+                        content.push_str(&desc);
+                        content.push_str("';");
+                    },
+                    ProcessStatus::QuickExit => {
+                        content.push_str("obj.state = 'quick exit';");
+                        content.push_str("obj.description = 'quick exit';");
+                    },
                     _ => {
                         content.push_str("obj.state = 'running';");
                         // desc display

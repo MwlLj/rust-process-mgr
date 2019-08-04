@@ -19,7 +19,7 @@ pub struct CServer {
 }
 
 impl CServer {
-	pub fn start(&mut self, inPwd: &str, host: &str, port: u32, jsPath: &str) -> Result<(), &str> {
+	pub fn start(&mut self, inUser: &str, inPwd: &str, host: &str, port: u32, jsPath: &str) -> Result<(), &str> {
         let addr = self.joinAddr(host, port);
         let server = match Server::http(addr) {
             Ok(s) => s,
@@ -32,7 +32,7 @@ impl CServer {
             let url = request.url();
             let method = request.method();
             if *method == Method::Get && url == "/index" {
-                if !self.authHandler.handler(inPwd, request, |req: Request| {
+                if !self.authHandler.handler(inUser, inPwd, request, |req: Request| {
                     self.indexHandler.handler(&self.dispatch, req);
                 }) {
                     continue;
@@ -55,6 +55,10 @@ impl CServer {
                 self.apiHandler.handleRestartAllProcess(&mut self.dispatch, request);
             } else if *method == Method::Get && url == "/api/config" {
                 self.apiHandler.handleGetAllConfig(&self.dispatch.fileOps(), request);
+            } else if *method == Method::Put && url == "/api/reload" {
+                self.apiHandler.handleReload(&mut self.dispatch, request);
+            } else if *method == Method::Put && url == "/api/save/before/reload" {
+                self.apiHandler.handleSaveBeforeReload(&mut self.dispatch, request);
             } else if *method == Method::Get && url == "/js/jquery-3.3.1.min.js" {
                 if let Ok(file) = File::open(jsPath) {
                     request.respond(Response::from_file(file));

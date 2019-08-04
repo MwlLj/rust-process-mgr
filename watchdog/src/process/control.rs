@@ -1,6 +1,3 @@
-extern crate sysinfo;
-// extern crate libc;
-
 use std::thread;
 use std::io::prelude::*;
 use std::fs::File;
@@ -56,20 +53,23 @@ impl CControl {
                     // starting
                     CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::Starting);
                     let mut execute = &process.execute;
+                    let mut args = process.args.clone();
                     if execute == "" {
                         if process.args.len() == 0 {
+                            CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::Failed("args error".to_string()));
                             return RunResult::Failed;
                         }
                         execute = &process.args[0];
+                        args = args[1..].to_vec();
                     }
                     let mut child = match Command::new(execute)
-                    .args(&process.args)
+                    .args(args)
                     .env("PATH", &process.directory)
                     .current_dir(&process.directory)
                     .spawn() {
                         Ok(c) => c,
                         Err(err) => {
-                            CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::Failed);
+                            CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::Failed(err.to_string()));
                             println!("start process error, err: {}", err);
                             return RunResult::Failed;
                         }
@@ -203,7 +203,18 @@ impl CControl {
 
     pub fn restartProcess(&mut self, name: &str) -> Result<(), &str> {
         let pid = match self.findPid(name) {
-            Some(p) => p,
+            Some(p) => {
+            	match p.status {
+            		ProcessStatus::Failed(_)
+            		| ProcessStatus::QuickExit => {
+		                println!("process Failed or QuickExit, restart, name: {}", name);
+		                self.updateIsAuto(name, true);
+		                self.startNewProcess(name);
+		                return Ok(());
+            		},
+            		_ => p
+            	}
+            },
             None => {
                 println!("process is not exist, name: {}", name);
                 self.updateIsAuto(name, true);
@@ -218,7 +229,7 @@ impl CControl {
     }
 
     pub fn findPid(&self, name: &str) -> Option<CPid> {
-        let mut pids = match self.pids.lock() {
+        let pids = match self.pids.lock() {
             Ok(pids) => pids,
             Err(err) => {
                 println!("pids lock error, err: {}", err);
@@ -230,6 +241,17 @@ impl CControl {
         } else {
             None
         }
+    }
+
+    pub fn removeNameFromPidMapping(&mut self, name: &str) {
+        let mut pids = match self.pids.lock() {
+            Ok(pids) => pids,
+            Err(err) => {
+                println!("pids lock error, err: {}", err);
+                return;
+            }
+        };
+        pids.remove(name);
     }
 
     pub fn new(processes: ProcessVec) -> CControl {

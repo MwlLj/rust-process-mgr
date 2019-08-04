@@ -1,17 +1,17 @@
 #[cfg(target_os="macos")]
 mod mac;
 #[cfg(target_os="macos")]
-use mac as sys;
+use crate::process::kill::mac as sys;
 
 #[cfg(target_os="windows")]
 mod windows;
 #[cfg(target_os="windows")]
-use windows as sys;
+use crate::process::kill::windows as sys;
 
 #[cfg(target_os="linux")]
 mod linux;
 #[cfg(target_os="linux")]
-use linux as sys;
+use crate::process::kill::linux as sys;
 
 #[derive(Clone, PartialEq, PartialOrd, Debug, Copy)]
 pub enum Signal {

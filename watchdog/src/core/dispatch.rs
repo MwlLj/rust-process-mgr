@@ -63,6 +63,8 @@ impl CDispatch {
         }
         for process in deletes.iter() {
             self.processCtrl.lock().unwrap().stopProcess(&process.name);
+            // when process status is Failed or QuickExit -> pidMapping doesn't be delete
+            self.processCtrl.lock().unwrap().removeNameFromPidMapping(&process.name);
         }
     }
 

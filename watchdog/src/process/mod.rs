@@ -3,7 +3,7 @@ pub enum ProcessStatus {
     Starting,
     Running,
     Stoped,
-    Failed,
+    Failed(String),
     QuickExit,
     Unknow
 }

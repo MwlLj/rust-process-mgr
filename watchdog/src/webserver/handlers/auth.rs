@@ -7,7 +7,7 @@ pub struct CAuthHandler {
 }
 
 impl CAuthHandler {
-    pub fn handler<F>(&self, inPwd: &str, request: Request, f: F) -> bool
+    pub fn handler<F>(&self, inUser: &str, inPwd: &str, request: Request, f: F) -> bool
         where F: FnOnce(Request) {
         let auth = self.findHeader(&request.headers(), authorization);
         // println!("{:?}", auth);
@@ -48,8 +48,8 @@ impl CAuthHandler {
             request.respond(Response::from_data("split by : error"));
             return false;
         }
-        if inPwd != v[1] {
-            request.respond(Response::from_string("password error"));
+        if inUser != v[0] || inPwd != v[1] {
+            request.respond(Response::from_string("username or password error"));
             return false;
         } else {
             f(request);

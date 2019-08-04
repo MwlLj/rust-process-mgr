@@ -1,8 +1,9 @@
 use crate::templates::html;
 use crate::process::ProcessStatus;
 use crate::core::dispatch::CDispatch;
-use super::{CDefaultResponse, CGetAllConfigResponse};
+use super::{CDefaultResponse, CGetAllConfigResponse, CPutReloadRequest};
 use crate::config::file;
+use crate::config::{ConfigInfo};
 
 use tiny_http::{Request, Response, Header};
 use serde_json;
@@ -76,6 +77,79 @@ impl CApiHandler {
                     break;
                 }
             }
+            break;
+        }
+        res.message = super::to_message(&res.status);
+        request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
+    }
+
+    pub fn handleReload(&self, dispatch: &mut CDispatch, mut request: Request) {
+        let mut res = CDefaultResponse::default();
+        loop {
+            let mut name = String::new();
+            match request.as_reader().read_to_string(&mut name) {
+                Ok(_) => {
+                },
+                Err(err) => {
+                    println!("read request body error, err: {}", err);
+                    res.result = false;
+                    res.status = *super::status_body_read_error;
+                    break;
+                }
+            }
+            let mut req: CPutReloadRequest = match serde_json::from_str(&name) {
+                Ok(r) => r,
+                Err(err) => {
+                    println!("parse request json error, err: {}", err);
+                    res.result = false;
+                    res.status = *super::status_json_parse_error;
+                    break;
+                }
+            };
+            dispatch.reload(&mut req.processList);
+            break;
+        }
+        res.message = super::to_message(&res.status);
+        request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
+    }
+
+    pub fn handleSaveBeforeReload(&self, dispatch: &mut CDispatch, mut request: Request) {
+        let mut res = CDefaultResponse::default();
+        loop {
+            let mut name = String::new();
+            match request.as_reader().read_to_string(&mut name) {
+                Ok(_) => {
+                },
+                Err(err) => {
+                    println!("read request body error, err: {}", err);
+                    res.result = false;
+                    res.status = *super::status_body_read_error;
+                    break;
+                }
+            }
+            let mut req: CPutReloadRequest = match serde_json::from_str(&name) {
+                Ok(r) => r,
+                Err(err) => {
+                    println!("parse request json error, err: {}", err);
+                    res.result = false;
+                    res.status = *super::status_json_parse_error;
+                    break;
+                }
+            };
+            // save to file
+            let fileOps = dispatch.fileOps();
+            match fileOps.write(&ConfigInfo{
+                processList: req.processList.clone()
+            }) {
+                Ok(_) => {},
+                Err(err) => {
+                    println!("write to file error, err: {}", err);
+                    res.result = false;
+                    res.status = *super::status_file_rw_error;
+                    break;
+                }
+            }
+            dispatch.reload(&mut req.processList);
             break;
         }
         res.message = super::to_message(&res.status);
