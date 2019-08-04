@@ -47,11 +47,11 @@ impl CServer {
                 self.webHandler.handleRestartAllProcess(&mut self.dispatch, request);
             } else if *method == Method::Delete && url == "/api/stop" {
                 self.apiHandler.handleStopProcess(&mut self.dispatch, request);
-            } else if *method == Method::Post && url == "/api/restart" {
+            } else if *method == Method::Put && url == "/api/restart" {
                 self.apiHandler.handleRestartProcess(&mut self.dispatch, request);
             } else if *method == Method::Delete && url == "/api/stop/all" {
                 self.apiHandler.handleStopAllProcess(&mut self.dispatch, request);
-            } else if *method == Method::Post && url == "/api/restart/all" {
+            } else if *method == Method::Put && url == "/api/restart/all" {
                 self.apiHandler.handleRestartAllProcess(&mut self.dispatch, request);
             } else if *method == Method::Get && url == "/api/config" {
                 self.apiHandler.handleGetAllConfig(&self.dispatch.fileOps(), request);
@@ -59,6 +59,10 @@ impl CServer {
                 self.apiHandler.handleReload(&mut self.dispatch, request);
             } else if *method == Method::Put && url == "/api/save/before/reload" {
                 self.apiHandler.handleSaveBeforeReload(&mut self.dispatch, request);
+            } else if *method == Method::Get && url == "/api/one/process/status" {
+                self.apiHandler.handleGetOneStatusRequest(&self.dispatch, request);
+            } else if *method == Method::Get && url == "/api/all/process/status" {
+                self.apiHandler.handleGetAllStatusRequest(&self.dispatch, request);
             } else if *method == Method::Get && url == "/js/jquery-3.3.1.min.js" {
                 if let Ok(file) = File::open(jsPath) {
                     request.respond(Response::from_file(file));

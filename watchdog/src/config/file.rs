@@ -60,7 +60,7 @@ impl CFile {
     }
 
     pub fn write(&self, info: &ConfigInfo) -> Result<(), &str> {
-        let s = match serde_json::to_string(info) {
+        let s = match serde_json::to_string_pretty(info) {
             Ok(s) => s,
             Err(err) => {
                 println!("write file error, json to_string error, err: {}", err);

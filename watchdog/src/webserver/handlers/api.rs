@@ -1,7 +1,9 @@
 use crate::templates::html;
 use crate::process::ProcessStatus;
+use crate::process;
 use crate::core::dispatch::CDispatch;
-use super::{CDefaultResponse, CGetAllConfigResponse, CPutReloadRequest};
+use super::{CDefaultResponse, CGetAllConfigResponse, CPutReloadRequest
+, CGetOneProcessStatusResponse, CGetAllProcessStatusResponse, CStatus};
 use crate::config::file;
 use crate::config::{ConfigInfo};
 
@@ -23,7 +25,11 @@ impl CApiHandler {
                 res.status = *super::status_param_error;
                 break;
             }
-            dispatch.stopProcess(&name);
+            if let Err(err) = dispatch.stopProcess(&name) {
+                res.result = false;
+                res.status = *super::status_stop_process_error;
+                break;
+            };
             break;
         }
         res.message = super::to_message(&res.status);
@@ -39,7 +45,11 @@ impl CApiHandler {
                 res.status = *super::status_param_error;
                 break;
             }
-            dispatch.restartProcess(&name);
+            if let Err(err) = dispatch.restartProcess(&name) {
+                res.result = false;
+                res.status = *super::status_restart_process_error;
+                break;
+            };
             break;
         }
         res.message = super::to_message(&res.status);
@@ -150,6 +160,58 @@ impl CApiHandler {
                 }
             }
             dispatch.reload(&mut req.processList);
+            break;
+        }
+        res.message = super::to_message(&res.status);
+        request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
+    }
+
+    pub fn handleGetOneStatusRequest(&self, dispatch: &CDispatch, request: Request) {
+        let mut res = CGetOneProcessStatusResponse::default();
+        loop {
+            let name = self.findHeader(&request.headers(), header_name);
+            if name == "" {
+                res.result = false;
+                res.status = *super::status_param_error;
+                break;
+            }
+            let status = match dispatch.getRunStatus(&name) {
+                Ok(s) => s,
+                Err(err) => {
+                    println!("get runStatus error, err: {}", err);
+                    break;
+                }
+            };
+            res.data = CStatus {
+                pid: status.pid,
+                runTime: status.runTime,
+                status: process::to_status_desc(&status.status),
+                name: status.name
+            };
+            break;
+        }
+        res.message = super::to_message(&res.status);
+        request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
+    }
+
+    pub fn handleGetAllStatusRequest(&self, dispatch: &CDispatch, request: Request) {
+        let mut res = CGetAllProcessStatusResponse::default();
+        loop {
+            let statuses = match dispatch.getAllRunStatus() {
+                Ok(s) => s,
+                Err(err) => {
+                    println!("get all runStatus error, err: {}", err);
+                    break;
+                }
+            };
+            for status in statuses {
+                res.data.push(CStatus{
+                    pid: status.pid,
+                    runTime: status.runTime,
+                    status: process::to_status_desc(&status.status),
+                    name: status.name
+                });
+            }
             break;
         }
         res.message = super::to_message(&res.status);

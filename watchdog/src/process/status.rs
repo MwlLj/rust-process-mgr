@@ -173,7 +173,8 @@ impl CStatus {
                 println!("pid is not found, name: {}", name);
                 return Ok(control::CPid{
                     pid: -1,
-                    status: ProcessStatus::Unknow
+                    // status: ProcessStatus::Unknow
+                    status: ProcessStatus::Stoped
                 });
             }
         };
