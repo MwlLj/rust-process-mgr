@@ -45,15 +45,36 @@ impl CFile {
         }
     ]
 }"#;
-                writer.write(data.as_bytes()).unwrap();
-                writer.flush().unwrap();
-                configInfo = serde_json::from_str(data).unwrap();
+                if let Err(err) = writer.write(data.as_bytes()) {
+                    println!("write error, err: {}", err);
+                    return Err("write error");
+                };
+                if let Err(err) = writer.flush() {
+                    println!("flush error, err: {}", err);
+                    return Err("flush error");
+                };
+                configInfo = match serde_json::from_str(data) {
+                    Ok(c) => c,
+                    Err(err) => {
+                        println!("json parse error, err: {}", err);
+                        return Err("json parse error");
+                    }
+                };
             };
         } else {
             if let Ok(f) = File::open(&self.path) {
                 let mut reader = BufReader::new(f);
-                reader.read_to_string(&mut buf).unwrap();
-                configInfo = serde_json::from_str(&buf).unwrap();
+                if let Err(err) = reader.read_to_string(&mut buf) {
+                    println!("read to string error, err: {}", err);
+                    return Err("read to string error");
+                };
+                configInfo = match serde_json::from_str(&buf) {
+                    Ok(c) => c,
+                    Err(err) => {
+                        println!("json parse error, err: {}", err);
+                        return Err("json parse error");
+                    }
+                };
             };
         }
         Ok((configInfo, buf))

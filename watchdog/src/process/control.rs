@@ -54,7 +54,7 @@ impl CControl {
                     if process.isAuto == false {
                         return RunResult::IsnotAuto;
                     }
-                    CControl::writeLog(&(String::from("start process: ") + &name + ", time: " + &Local::now().timestamp().to_string()));
+                    CControl::writeLog(&(String::from("start process: ") + &name + ", time: " + &Local::now().timestamp().to_string() + "\n"));
                     // starting
                     CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::Starting);
                     // calc start time
@@ -270,6 +270,7 @@ impl CControl {
     }
 
     pub fn new(processes: ProcessVec) -> CControl {
+        CControl::writeLog(&(String::from("watchdog start, time: ") + &Local::now().timestamp().to_string() + "\n"));
         let ctrl = CControl{
             processes: processes,
             pids: Arc::new(Mutex::new(HashMap::new()))

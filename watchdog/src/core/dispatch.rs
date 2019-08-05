@@ -146,7 +146,7 @@ impl CDispatch {
 
 impl CDispatch {
     pub fn new(path: &str) -> CDispatch {
-        System::new();
+        // System::new();
         let fileOps = file::CFile::new(path);
         let processes = Arc::new(Mutex::new(VecDeque::new()));
         let system = Arc::new(Mutex::new(System::new()));
