@@ -145,9 +145,9 @@ impl CDispatch {
     pub fn new(path: &str) -> CDispatch {
         let fileOps = file::CFile::new(path);
         let processes = Arc::new(Mutex::new(VecDeque::new()));
+        let system = Arc::new(Mutex::new(System::new()));
         let processCtrl = control::CControl::new(processes.clone());
         let processCtrl = Arc::new(Mutex::new(processCtrl));
-        let system = Arc::new(Mutex::new(System::new()));
         let processStatus = status::CStatus::new(processCtrl.clone()
             , system.clone());
         CDispatch{

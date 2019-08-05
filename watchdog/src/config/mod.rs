@@ -13,7 +13,7 @@ pub struct Process {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ConfigInfo {
-    pub processList: VecDeque<Process>,
+    pub processList: VecDeque<Process>
 }
 
 pub mod file;

@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use sysinfo::{ProcessExt, SystemExt, System, Signal};
 
 use std::thread;
+use std::time;
 use std::io::prelude::*;
 use std::fs::File;
 use std::io::BufReader;
@@ -76,6 +77,7 @@ impl CControl {
                             return RunResult::Failed;
                         }
                     };
+                    std::thread::sleep(time::Duration::from_millis(200));
                     let pid = child.id() as i32;
                     // running
                     CControl::replacePid(pids.clone(), &name, pid, ProcessStatus::Running);
