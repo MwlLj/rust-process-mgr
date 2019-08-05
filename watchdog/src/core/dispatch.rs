@@ -9,6 +9,8 @@ use sysinfo::{SystemExt, System};
 
 use std::sync::{Arc, Mutex};
 use std::collections::VecDeque;
+use std::thread;
+use std::time;
 
 type ProcessVec = Arc<Mutex<VecDeque<Process>>>;
 type ProcessCtrl = Arc<Mutex<control::CControl>>;
@@ -30,6 +32,7 @@ impl CDispatch {
         // update memory
         self.refreshProcesses(&mut processes);
         // start processes
+        thread::sleep(time::Duration::from_secs(3));
         self.processCtrl.lock().unwrap().startAllProcess();
     }
 
@@ -143,6 +146,7 @@ impl CDispatch {
 
 impl CDispatch {
     pub fn new(path: &str) -> CDispatch {
+        // System::new();
         let fileOps = file::CFile::new(path);
         let processes = Arc::new(Mutex::new(VecDeque::new()));
         let system = Arc::new(Mutex::new(System::new()));
