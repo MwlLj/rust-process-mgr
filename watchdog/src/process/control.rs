@@ -1,12 +1,12 @@
+use chrono::prelude::*;
+use std::sync::{Arc, Mutex};
+use sysinfo::{ProcessExt, SystemExt, System, Signal};
+
 use std::thread;
 use std::io::prelude::*;
 use std::fs::File;
 use std::io::BufReader;
-
 use std::process::Command;
-use std::sync::{Arc, Mutex};
-use sysinfo::{ProcessExt, SystemExt, System, Signal};
-
 use std::collections::VecDeque;
 use std::collections::HashMap;
 
@@ -52,6 +52,8 @@ impl CControl {
                     }
                     // starting
                     CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::Starting);
+                    // calc start time
+                    let startTime = Local::now().timestamp();
                     let mut execute = &process.execute;
                     let mut args = process.args.clone();
                     if execute == "" {
@@ -84,6 +86,13 @@ impl CControl {
                         Err(err) => {
                             println!("process failed exit, name: {}", &process.name);
                         }
+                    }
+                    // calc stop time
+                    let stopTime = Local::now().timestamp();
+                    if stopTime - startTime < 3 {
+                        CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::QuickExit);
+                        println!("process quick exit error");
+                        return RunResult::Failed;
                     }
                     // stoped
                     CControl::replacePid(pids.clone(), &name, pid, ProcessStatus::Stoped);
