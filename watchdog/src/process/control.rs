@@ -77,7 +77,6 @@ impl CControl {
                             return RunResult::Failed;
                         }
                     };
-                    std::thread::sleep(time::Duration::from_millis(200));
                     let pid = child.id() as i32;
                     // running
                     CControl::replacePid(pids.clone(), &name, pid, ProcessStatus::Running);
@@ -121,6 +120,7 @@ impl CControl {
                 }
             }
         });
+        std::thread::sleep(time::Duration::from_millis(500));
     }
 
     pub fn startAllProcess(&self) {
