@@ -32,7 +32,7 @@ impl CDispatch {
         // update memory
         self.refreshProcesses(&mut processes);
         // start processes
-        thread::sleep(time::Duration::from_secs(3));
+        // thread::sleep(time::Duration::from_secs(3));
         self.processCtrl.lock().unwrap().startAllProcess();
     }
 
@@ -146,7 +146,7 @@ impl CDispatch {
 
 impl CDispatch {
     pub fn new(path: &str) -> CDispatch {
-        // System::new();
+        System::new();
         let fileOps = file::CFile::new(path);
         let processes = Arc::new(Mutex::new(VecDeque::new()));
         let system = Arc::new(Mutex::new(System::new()));

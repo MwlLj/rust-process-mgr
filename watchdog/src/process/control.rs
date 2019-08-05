@@ -15,6 +15,9 @@ use crate::config::Process;
 use super::kill;
 use super::ProcessStatus;
 
+
+use std::fs::OpenOptions;
+
 enum RunResult {
     True,
     IsnotAuto,
@@ -51,6 +54,7 @@ impl CControl {
                     if process.isAuto == false {
                         return RunResult::IsnotAuto;
                     }
+                    CControl::writeLog(&(String::from("start process: ") + &name + ", time: " + &Local::now().timestamp().to_string()));
                     // starting
                     CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::Starting);
                     // calc start time
@@ -120,7 +124,6 @@ impl CControl {
                 }
             }
         });
-        std::thread::sleep(time::Duration::from_millis(500));
     }
 
     pub fn startAllProcess(&self) {
@@ -358,6 +361,17 @@ impl CControl {
         } else {
             println!("delete failed, name: {} is not exist", name);
         }
+    }
+
+    fn writeLog(content: &str) {
+        let mut file = match OpenOptions::new().append(true).create(true).open("tmp.log") {
+            Ok(f) => f,
+            Err(err) => {
+                println!("write log error, err: {}", err);
+                return;
+            }
+        };
+        file.write(content.as_bytes());
     }
 }
 
