@@ -28,6 +28,7 @@ impl CServer {
                 return Err("http server start error");
             }
         };
+        self.dispatch.start();
         for mut request in server.incoming_requests() {
             let url = request.url();
             let method = request.method();
@@ -75,7 +76,6 @@ impl CServer {
 	}
 
 	pub fn new(mut dispatch: CDispatch) -> CServer {
-        dispatch.start();
 		let server = CServer{
             dispatch: dispatch,
             authHandler: auth::CAuthHandler::new(),

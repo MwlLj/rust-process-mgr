@@ -72,13 +72,13 @@ impl CRun {
             }
         };
 
-        writeLog(&(String::from("new dispatch start") + "\n"));
+        // writeLog(&(String::from("new dispatch start") + "\n"));
         let dispatch = CDispatch::new(&*configFile);
-        writeLog(&(String::from("new dispatch end") + "\n"));
+        // writeLog(&(String::from("new dispatch end") + "\n"));
         let mut server = CServer::new(dispatch);
-        writeLog(&(String::from("server start") + "\n"));
+        // writeLog(&(String::from("server start") + "\n"));
         server.start(&user, &pwd, &httpHost, httpPort, &jsPath);
-        writeLog(&(String::from("server end") + "\n"));
+        // writeLog(&(String::from("server end") + "\n"));
     }
 
     fn new() -> CRun {
@@ -153,7 +153,7 @@ fn writeLog(content: &str) {
 }
 
 fn main() {
-    writeLog(&(String::from("main start") + "\n"));
+    // writeLog(&(String::from("main start") + "\n"));
     let runner = CRun::new();
     runner.run();
     // startNewProcessTest();

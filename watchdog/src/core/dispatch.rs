@@ -136,7 +136,7 @@ impl CDispatch {
             Ok(c) => c,
             Err(err) => {
                 println!("read config file error, err: {}", err);
-                CDispatch::writeLog(&(String::from("read config file error") + "\n"));
+                // CDispatch::writeLog(&(String::from("read config file error") + "\n"));
                 return None;
             }
         };
