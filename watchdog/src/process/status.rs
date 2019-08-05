@@ -5,7 +5,7 @@ use super::ProcessStatus;
 use chrono::prelude::*;
 use chrono::{Duration, DateTime, NaiveDateTime};
 
-use sysinfo::{ProcessExt, SystemExt, System};
+use sysinfo::{ProcessExt, SystemExt, System, Pid};
 
 use std::sync::{Arc, Mutex};
 use std::process::{Command, Stdio};
@@ -87,15 +87,7 @@ impl CStatus {
         if !isRefresh {
             system.refresh_all();
         }
-        #[cfg(target_os="windows")]
-        let id = pid.pid as usize;
-        #[cfg(target_os="linux")]
-        let id = pid.pid as i32;
-        #[cfg(target_os="mac")]
-        let id = pid.pid as i32;
-        #[cfg(target_os="unix")]
-        let id = pid.pid as i32;
-        let pro = match system.get_process(id) {
+        let pro = match system.get_process(pid.pid as Pid) {
             Some(p) => p,
             None => {
                 println!("process object not found");
