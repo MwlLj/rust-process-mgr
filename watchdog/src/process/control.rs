@@ -92,7 +92,6 @@ impl CControl {
                             println!("process failed exit, name: {}", &process.name);
                         }
                     }
-                    CControl::killC(pid);
                     // calc stop time
                     let stopTime = Local::now().timestamp();
                     if stopTime - startTime < 3 {
@@ -281,10 +280,6 @@ impl CControl {
 
 impl CControl {
     fn kill(&self, pid: i32) -> bool {
-        kill::kill(pid, kill::Signal::Kill)
-    }
-
-    fn killC(pid: i32) -> bool {
         kill::kill(pid, kill::Signal::Kill)
     }
 
