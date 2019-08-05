@@ -87,7 +87,15 @@ impl CStatus {
         if !isRefresh {
             system.refresh_all();
         }
-        let pro = match system.get_process(pid.pid as usize) {
+        #[cfg(target_os="windows")]
+        let id = pid.pid as usize;
+        #[cfg(target_os="linux")]
+        let id = pid.pid as i32;
+        #[cfg(target_os="mac")]
+        let id = pid.pid as i32;
+        #[cfg(target_os="unix")]
+        let id = pid.pid as i32;
+        let pro = match system.get_process(id) {
             Some(p) => p,
             None => {
                 println!("process object not found");
