@@ -12,6 +12,9 @@ use std::collections::VecDeque;
 use std::thread;
 use std::time;
 
+use std::io::prelude::*;
+use std::fs::OpenOptions;
+
 type ProcessVec = Arc<Mutex<VecDeque<Process>>>;
 type ProcessCtrl = Arc<Mutex<control::CControl>>;
 type SystemArc = Arc<Mutex<System>>;
@@ -28,7 +31,10 @@ pub struct CDispatch {
 impl CDispatch {
     pub fn start(&mut self) {
         // load config file
-        let mut processes = self.load();
+        let mut processes = match self.load() {
+            Some(p) => p,
+            None => return
+        };
         // update memory
         self.refreshProcesses(&mut processes);
         // start processes
@@ -125,9 +131,16 @@ impl CDispatch {
 }
 
 impl CDispatch {
-    fn load(&self) -> VecDeque<Process> {
-        let configInfo = self.fileOps.read().expect("load read error");
-        configInfo.0.processList
+    fn load(&self) -> Option<VecDeque<Process>> {
+        let configInfo = match self.fileOps.read() {
+            Ok(c) => c,
+            Err(err) => {
+                println!("read config file error, err: {}", err);
+                CDispatch::writeLog(&(String::from("read config file error") + "\n"));
+                return None;
+            }
+        };
+        Some(configInfo.0.processList)
     }
 
     fn refreshProcesses(&mut self, pros: &mut VecDeque<Process>) {
@@ -141,6 +154,17 @@ impl CDispatch {
         // processes.clear();
         // processes.append(pros);
         *processes = pros.clone();
+    }
+
+    fn writeLog(content: &str) {
+        let mut file = match OpenOptions::new().append(true).create(true).open("tmp.log") {
+            Ok(f) => f,
+            Err(err) => {
+                println!("write log error, err: {}", err);
+                return;
+            }
+        };
+        file.write(content.as_bytes());
     }
 }
 

@@ -6,6 +6,8 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::default::Default;
 use std::collections::VecDeque;
+use std::io::prelude::*;
+use std::fs::OpenOptions;
 
 use sysinfo::{ProcessExt, SystemExt, System};
 use rust_parse::cmd::CCmd;
@@ -135,7 +137,19 @@ fn webServerTest() {
     server.start("admin", "123456", "0.0.0.0", 12345, "js/jquery-3.3.1.min.js");
 }
 
+fn writeLog(content: &str) {
+    let mut file = match OpenOptions::new().append(true).create(true).open("tmp.log") {
+        Ok(f) => f,
+        Err(err) => {
+            println!("write log error, err: {}", err);
+            return;
+        }
+    };
+    file.write(content.as_bytes());
+}
+
 fn main() {
+    writeLog(&(String::from("main start") + "\n"));
     let runner = CRun::new();
     runner.run();
     // startNewProcessTest();
