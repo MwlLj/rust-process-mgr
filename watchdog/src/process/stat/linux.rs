@@ -1,7 +1,7 @@
 use libc;
 use std::ffi::CStr;
 
-pub fn processTime(pid: i32) -> u64 {
+pub fn processTimestamp(pid: i32) -> u64 {
     let mut path = String::new();
     path.push_str("/proc/");
     path.push_str(&pid.to_string());
@@ -19,5 +19,5 @@ pub fn processTime(pid: i32) -> u64 {
         libc::stat(path, &mut stat as *mut libc::stat);
         stat
     };
-    stat.st_atime
+    stat.st_atime as u64
 }
