@@ -68,8 +68,14 @@ impl CControl {
                         execute = &process.args[0];
                         args = args[1..].to_vec();
                     }
-                    let mut child = match Command::new(execute)
-                    .args(args)
+                    let mut commond = Command::new(execute);
+                    for arg in args {
+                        let ss = arg.split_whitespace();
+                        for s in ss {
+                            commond.arg(s);
+                        }
+                    }
+                    let mut child = match commond
                     .env("PATH", &process.directory)
                     .current_dir(&process.directory)
                     .spawn() {
