@@ -1,18 +1,20 @@
 use crate::config::Process;
 use crate::process::control;
 use super::ProcessStatus;
+use super::stat;
 
 use chrono::prelude::*;
 use chrono::{Duration, DateTime, NaiveDateTime};
 
-use sysinfo::{ProcessExt, SystemExt, System, Pid};
+use libc;
 
 use std::sync::{Arc, Mutex};
 use std::process::{Command, Stdio};
 use std::collections::VecDeque;
+use std::ffi::CStr;
 
 type ProcessControl = Arc<Mutex<control::CControl>>;
-type SystemArc = Arc<Mutex<System>>;
+// type SystemArc = Arc<Mutex<System>>;
 type ProcessVec = Arc<Mutex<VecDeque<Process>>>;
 
 const process_runtime_default: &str = "unknow";
@@ -26,12 +28,12 @@ pub struct CStatusInfo {
 }
 
 pub struct CStatus {
-    processCtrl: ProcessControl,
-    system: SystemArc
+    processCtrl: ProcessControl
 }
 
 impl CStatus {
     pub fn getAllRunStatus(&self, processes: ProcessVec) -> Result<Vec<CStatusInfo>, &str> {
+        /*
         {
             let mut system = match self.system.lock() {
                 Ok(s) => s,
@@ -42,6 +44,7 @@ impl CStatus {
             };
             system.refresh_all();
         }
+        */
         let mut processNames = Vec::new();
         {
             let pros = match processes.lock() {
@@ -57,7 +60,7 @@ impl CStatus {
         }
         let mut statuses = Vec::new();
         for name in processNames {
-            match self.getRunStatus(&name, true) {
+            match self.getRunStatus(&name) {
                 Ok(s) => {
                     statuses.push(s);
                 },
@@ -70,13 +73,14 @@ impl CStatus {
         Ok(statuses)
     }
 
-    pub fn getRunStatus(&self, name: &str, isRefresh: bool) -> Result<CStatusInfo, &str> {
+    pub fn getRunStatus(&self, name: &str) -> Result<CStatusInfo, &str> {
         let pid = match self.findPidByName(name) {
             Ok(id) => id,
             Err(err) => {
                 return Err(err);
             }
         };
+        /*
         let mut system = match self.system.lock() {
             Ok(s) => s,
             Err(err) => {
@@ -99,11 +103,10 @@ impl CStatus {
                 });
             }
         };
-        let mut procStatrTime = 0;
+        */
+        let mut procStatrTime = stat::processTimestamp(pid.pid) as i64;
+        /*
         if (cfg!(all(target_os="linux", target_arch="arm"))) {
-            let mut path = String::new();
-            path.push_str("/proc/");
-            path.push_str(&pid.pid.to_string());
             if let Ok(output) = Command::new("stat")
                 .arg(path)
                 .stdout(Stdio::piped())
@@ -127,6 +130,7 @@ impl CStatus {
         } else {
             procStatrTime = pro.start_time() as i64;
         }
+        */
         let dt = Local::now();
         let now = dt.timestamp();
         let sub = now - procStatrTime;
@@ -196,10 +200,9 @@ impl CStatus {
 }
 
 impl CStatus {
-    pub fn new(ctrl: ProcessControl, system: SystemArc) -> CStatus {
+    pub fn new(ctrl: ProcessControl) -> CStatus {
         CStatus{
-            processCtrl: ctrl,
-            system: system
+            processCtrl: ctrl
         }
     }
 }

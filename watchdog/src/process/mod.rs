@@ -38,7 +38,7 @@ pub fn to_status_desc(status: &ProcessStatus) -> String {
 	}
 }
 
-pub mod check;
 pub mod control;
 pub mod kill;
+pub mod stat;
 pub mod status;

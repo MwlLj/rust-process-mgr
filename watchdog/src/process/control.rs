@@ -1,6 +1,5 @@
 use chrono::prelude::*;
 use std::sync::{Arc, Mutex};
-use sysinfo::{ProcessExt, SystemExt, System, Signal};
 
 use std::thread;
 use std::time;

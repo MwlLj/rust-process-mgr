@@ -5,8 +5,6 @@ use crate::process::status;
 use crate::config::file;
 use crate::config::ConfigInfo;
 
-use sysinfo::{SystemExt, System};
-
 use std::sync::{Arc, Mutex};
 use std::collections::VecDeque;
 use std::thread;
@@ -17,16 +15,9 @@ use std::fs::OpenOptions;
 
 type ProcessVec = Arc<Mutex<VecDeque<Process>>>;
 type ProcessCtrl = Arc<Mutex<control::CControl>>;
-type SystemArc = Arc<Mutex<System>>;
 
-pub struct CDispatch {
-    path: String,
-    processes: ProcessVec,
-    fileOps: file::CFile,
-    processCtrl: ProcessCtrl,
-    system: SystemArc,
-    processStatus: status::CStatus
-}
+pub struct CDispatch { path: String, processes: ProcessVec, fileOps:
+file::CFile, processCtrl: ProcessCtrl, processStatus: status::CStatus }
 
 impl CDispatch {
     pub fn start(&mut self) {
@@ -82,7 +73,7 @@ impl CDispatch {
     }
 
     pub fn getRunStatus(&self, name: &str) -> Result<status::CStatusInfo, &str> {
-        self.processStatus.getRunStatus(name, true)
+        self.processStatus.getRunStatus(name)
     }
 
     pub fn stopAllProcess(&mut self) {
@@ -173,17 +164,14 @@ impl CDispatch {
         // System::new();
         let fileOps = file::CFile::new(path);
         let processes = Arc::new(Mutex::new(VecDeque::new()));
-        let system = Arc::new(Mutex::new(System::new()));
         let processCtrl = control::CControl::new(processes.clone());
         let processCtrl = Arc::new(Mutex::new(processCtrl));
-        let processStatus = status::CStatus::new(processCtrl.clone()
-            , system.clone());
+        let processStatus = status::CStatus::new(processCtrl.clone());
         CDispatch{
             path: path.to_string(),
             processes: processes.clone(),
             fileOps: fileOps,
             processCtrl: processCtrl.clone(),
-            system: system.clone(),
             processStatus: processStatus
         }
     }

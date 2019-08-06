@@ -9,13 +9,11 @@ use std::collections::VecDeque;
 use std::io::prelude::*;
 use std::fs::OpenOptions;
 
-use sysinfo::{ProcessExt, SystemExt, System};
 use rust_parse::cmd::CCmd;
 
 use watchdog::config::file::CFile;
 use watchdog::config::Process;
 use watchdog::config::ConfigInfo;
-use watchdog::process::check::CCheck;
 use watchdog::process::control;
 use watchdog::webserver::server::CServer;
 use watchdog::core::dispatch::CDispatch;
