@@ -72,8 +72,8 @@ impl CDispatch {
         self.processStatus.getAllRunStatus(self.processes.clone())
     }
 
-    pub fn getRunStatus(&self, name: &str) -> Result<status::CStatusInfo, &str> {
-        self.processStatus.getRunStatus(name)
+    pub fn getRunStatus(&self, name: &str, alias: &str) -> Result<status::CStatusInfo, &str> {
+        self.processStatus.getRunStatus(name, alias)
     }
 
     pub fn stopAllProcess(&mut self) {

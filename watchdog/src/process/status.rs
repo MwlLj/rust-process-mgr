@@ -24,7 +24,8 @@ pub struct CStatusInfo {
     pub pid: i32,
     pub runTime: String,
     pub status: ProcessStatus,
-    pub name: String
+    pub name: String,
+    pub alias: String
 }
 
 pub struct CStatus {
@@ -55,12 +56,12 @@ impl CStatus {
                 }
             };
             for process in pros.iter() {
-                processNames.push(process.name.to_string());
+                processNames.push((process.name.to_string(), process.alias.to_string()));
             }
         }
         let mut statuses = Vec::new();
-        for name in processNames {
-            match self.getRunStatus(&name) {
+        for (name, alias) in processNames {
+            match self.getRunStatus(&name, &alias) {
                 Ok(s) => {
                     statuses.push(s);
                 },
@@ -73,7 +74,7 @@ impl CStatus {
         Ok(statuses)
     }
 
-    pub fn getRunStatus(&self, name: &str) -> Result<CStatusInfo, &str> {
+    pub fn getRunStatus(&self, name: &str, alias: &str) -> Result<CStatusInfo, &str> {
         let pid = match self.findPidByName(name) {
             Ok(id) => id,
             Err(err) => {
@@ -139,7 +140,8 @@ impl CStatus {
             pid: pid.pid,
             runTime: runTime,
             status: pid.status,
-            name: name.to_string()
+            name: name.to_string(),
+            alias: alias.to_string()
         })
     }
 }

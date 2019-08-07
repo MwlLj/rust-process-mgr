@@ -5,6 +5,7 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct Process {
     pub name: String,
+    pub alias: String,
     pub execute: String,
     pub args: Vec<String>,
     pub directory: String,

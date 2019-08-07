@@ -36,6 +36,7 @@ impl CFile {
     "processList": [
         {
             "name": "test1",
+            "alias": "test1",
             "execute": "test",
             "args": [
                 "-port", "50005"

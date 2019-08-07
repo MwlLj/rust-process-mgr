@@ -100,6 +100,7 @@
         "data": [
             {
                 "name": string,
+                "alias": string,
                 "execute": string,
                 "args": [string],
                 "directory": string,
@@ -132,6 +133,7 @@
         "processList": [
             {
                 "name": string,
+                "alias": string,
                 "execute": string,
                 "args": [string],
                 "directory": string,
@@ -167,6 +169,7 @@
         "processList": [
             {
                 "name": string,
+                "alias": string,
                 "execute": string,
                 "args": [string],
                 "directory": string,
@@ -244,3 +247,15 @@
 - **desc**:
     ```
     ```
+
+
+## 四. 常量
+### 1. 进程状态
+```
+starting: 启动中
+running: 运行中
+stoped: 停止
+failed: 启动失败
+quick_exit: 快速退出
+unknow: 未知
+```

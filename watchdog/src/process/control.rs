@@ -58,22 +58,28 @@ impl CControl {
                     CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::Starting);
                     // calc start time
                     let startTime = Local::now().timestamp();
-                    let mut execute = &process.execute;
-                    let mut args = process.args.clone();
+                    let mut execute = process.execute.clone();
+                    // let mut argss = process.args.clone();
+                    let mut args = Vec::new();
+                    for arg in &process.args {
+                        let ss = arg.split_whitespace();
+                        for s in ss {
+                            args.push(s.to_string());
+                        }
+                    }
                     if execute == "" {
-                        if process.args.len() == 0 {
+                        if args.len() == 0 {
                             CControl::replacePid(pids.clone(), &name, -1, ProcessStatus::Failed("args error".to_string()));
                             return RunResult::Failed;
                         }
-                        execute = &process.args[0];
-                        args = args[1..].to_vec();
+                        execute = args[0].to_string();
+                        if args.len() > 1 {
+                            args = args[1..].to_vec();
+                        }
                     }
                     let mut commond = Command::new(execute);
                     for arg in args {
-                        let ss = arg.split_whitespace();
-                        for s in ss {
-                            commond.arg(s);
-                        }
+                        commond.arg(arg);
                     }
                     let mut child = match commond
                     .env("PATH", &process.directory)

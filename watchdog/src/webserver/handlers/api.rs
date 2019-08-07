@@ -175,7 +175,7 @@ impl CApiHandler {
                 res.status = *super::status_param_error;
                 break;
             }
-            let status = match dispatch.getRunStatus(&name) {
+            let status = match dispatch.getRunStatus(&name, "") {
                 Ok(s) => s,
                 Err(err) => {
                     println!("get runStatus error, err: {}", err);

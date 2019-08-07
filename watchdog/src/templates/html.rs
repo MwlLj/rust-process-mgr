@@ -23,6 +23,7 @@ pub const htmlStartDefine: &str = r#"
                 <th>state</th>
                 <th>description</th>
                 <th>name</th>
+                <th>alias</th>
                 <th>action</th>
             </tr>
             <tbody id="tbody">
@@ -37,7 +38,8 @@ pub const htmlStartDefine: &str = r#"
     var obj = {
         state:'runnning',
         description:'description',
-        name:'name'
+        name:'name',
+        alias:'alias'
     }
     function create(obj) {
         var tab=document.getElementById("table");
@@ -51,12 +53,15 @@ pub const htmlStartDefine: &str = r#"
         var td2 = document.createElement("td");
         td2.innerHTML = obj.name;
         var td3 = document.createElement("td");
-        // td3.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button>";
-        td3.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button><button id='st"+id+"' onclick='stop("+id+")'>stop</button>";
+        td3.innerHTML = obj.alias;
+        var td4 = document.createElement("td");
+        // td4.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button>";
+        td4.innerHTML = "<button id='rs"+id+"' onclick='restart("+id+")'>restart</button><button id='st"+id+"' onclick='stop("+id+")'>stop</button>";
         tr.appendChild(td0);
         tr.appendChild(td1);
         tr.appendChild(td2);
         tr.appendChild(td3);
+        tr.appendChild(td4);
         editTable.appendChild(tr);
     }
 

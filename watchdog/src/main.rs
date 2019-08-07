@@ -94,6 +94,7 @@ fn startNewProcessTest() {
     let name = "test1";
     let process = Process {
         name: name.to_string(),
+        alias: "test1".to_string(),
         execute: "test".to_string(),
         args: Vec::new(),
         directory: ".".to_string(),
@@ -115,7 +116,7 @@ fn dispatchTest() {
     dispatch.start();
     loop {
         thread::sleep(time::Duration::from_secs(1));
-        let runTime = dispatch.getRunStatus("test").unwrap();
+        let runTime = dispatch.getRunStatus("test", "test").unwrap();
         println!("runtime: {:?}", &runTime);
         /*
         let mut processes = VecDeque::new();

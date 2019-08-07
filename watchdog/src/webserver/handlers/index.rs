@@ -50,6 +50,7 @@ impl CIndexHandler {
                 }
                 // name display
                 content.push_str(&format!("obj.name = '{}';", status.name));
+                content.push_str(&format!("obj.alias = '{}';", status.alias));
                 // display
                 content.push_str("create(obj);");
             }
