@@ -89,7 +89,7 @@ impl CFile {
                 return Err("json to_string error");
             }
         };
-        let file = match OpenOptions::new().write(true).create(true).open(&self.path) {
+        let file = match OpenOptions::new().write(true).create(true).truncate(true).open(&self.path) {
             Ok(f) => f,
             Err(err) => {
                 println!("file open error, err: {}", err);
