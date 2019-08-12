@@ -5,10 +5,13 @@ use crate::core::dispatch::CDispatch;
 use super::{CDefaultResponse, CGetAllConfigResponse, CPutReloadRequest
 , CGetOneProcessStatusResponse, CGetAllProcessStatusResponse, CStatus};
 use crate::config::file;
-use crate::config::{ConfigInfo};
+use crate::config::{ConfigInfo, Process};
 
 use tiny_http::{Request, Response, Header};
 use serde_json;
+use json::{JsonValue};
+
+use std::collections::VecDeque;
 
 const header_name: &str = "name";
 
@@ -96,8 +99,8 @@ impl CApiHandler {
     pub fn handleReload(&self, dispatch: &mut CDispatch, mut request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
-            let mut name = String::new();
-            match request.as_reader().read_to_string(&mut name) {
+            let mut reqStr = String::new();
+            match request.as_reader().read_to_string(&mut reqStr) {
                 Ok(_) => {
                 },
                 Err(err) => {
@@ -107,7 +110,8 @@ impl CApiHandler {
                     break;
                 }
             }
-            let mut req: CPutReloadRequest = match serde_json::from_str(&name) {
+            // let mut req: CPutReloadRequest = match serde_json::from_str(&reqStr) {
+            let mut jv: JsonValue = match json::parse(&reqStr) {
                 Ok(r) => r,
                 Err(err) => {
                     println!("parse request json error, err: {}", err);
@@ -116,6 +120,20 @@ impl CApiHandler {
                     break;
                 }
             };
+            let mut req = CPutReloadRequest::default();
+            if jv["processList"].is_null() {
+                req.processList = VecDeque::new();
+            } else {
+                req = match serde_json::from_str(&reqStr) {
+                    Ok(r) => r,
+                    Err(err) => {
+                        println!("parse request json error, err: {}", err);
+                        res.result = false;
+                        res.status = *super::status_json_parse_error;
+                        break;
+                    }
+                };
+            }
             dispatch.reload(&mut req.processList);
             break;
         }
@@ -126,8 +144,8 @@ impl CApiHandler {
     pub fn handleSaveBeforeReload(&self, dispatch: &mut CDispatch, mut request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
-            let mut name = String::new();
-            match request.as_reader().read_to_string(&mut name) {
+            let mut reqStr = String::new();
+            match request.as_reader().read_to_string(&mut reqStr) {
                 Ok(_) => {
                 },
                 Err(err) => {
@@ -137,7 +155,16 @@ impl CApiHandler {
                     break;
                 }
             }
-            let mut req: CPutReloadRequest = match serde_json::from_str(&name) {
+            // let mut req: CPutReloadRequest = match serde_json::from_str(&name) {
+            //     Ok(r) => r,
+            //     Err(err) => {
+            //         println!("parse request json error, err: {}", err);
+            //         res.result = false;
+            //         res.status = *super::status_json_parse_error;
+            //         break;
+            //     }
+            // };
+            let mut jv: JsonValue = match json::parse(&reqStr) {
                 Ok(r) => r,
                 Err(err) => {
                     println!("parse request json error, err: {}", err);
@@ -146,6 +173,20 @@ impl CApiHandler {
                     break;
                 }
             };
+            let mut req = CPutReloadRequest::default();
+            if jv["processList"].is_null() {
+                req.processList = VecDeque::new();
+            } else {
+                req = match serde_json::from_str(&reqStr) {
+                    Ok(r) => r,
+                    Err(err) => {
+                        println!("parse request json error, err: {}", err);
+                        res.result = false;
+                        res.status = *super::status_json_parse_error;
+                        break;
+                    }
+                };
+            }
             // save to file
             let fileOps = dispatch.fileOps();
             match fileOps.write(&ConfigInfo{

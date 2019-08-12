@@ -113,7 +113,7 @@ impl std::default::Default for CGetAllProcessStatusResponse {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct CPutReloadRequest {
     pub processList: VecDeque<Process>
 }
