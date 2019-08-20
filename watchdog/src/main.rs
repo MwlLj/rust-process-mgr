@@ -98,7 +98,8 @@ fn startNewProcessTest() {
         execute: "test".to_string(),
         args: Vec::new(),
         directory: ".".to_string(),
-        isAuto: true
+        isAuto: true,
+        restartTimeS: 0
     };
     processes.push_back(process);
     let mut ctrl = control::CControl::new(Arc::new(Mutex::new(processes)));

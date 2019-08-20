@@ -42,7 +42,8 @@ impl CFile {
                 "-port", "50005"
             ],
             "directory": ".",
-            "isAuto": true
+            "isAuto": true,
+            "restartTimeS": 0
         }
     ]
 }"#;

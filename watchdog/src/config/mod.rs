@@ -9,7 +9,8 @@ pub struct Process {
     pub execute: String,
     pub args: Vec<String>,
     pub directory: String,
-    pub isAuto: bool
+    pub isAuto: bool,
+    pub restartTimeS: i64
 }
 
 #[derive(Serialize, Deserialize, Default)]

@@ -95,12 +95,30 @@ impl CControl {
                     let pid = child.id() as i32;
                     // running
                     CControl::replacePid(pids.clone(), &name, pid, ProcessStatus::Running);
-                    match child.wait() {
-                        Ok(_) => {
-                            println!("process success exit, name: {}", &process.name);
-                        },
-                        Err(err) => {
-                            println!("process failed exit, name: {}", &process.name);
+                    if process.restartTimeS > 0 {
+                        let s = Local::now().timestamp();
+                        loop {
+                            match child.try_wait() {
+                                Ok(_) => {},
+                                Err(err) => {
+                                    println!("process failed exit, name: {}", &process.name);
+                                    break;
+                                }
+                            }
+                            if Local::now().timestamp() - s >= process.restartTimeS {
+                                println!("process restartTime timeout, name: {}", &process.name);
+                                break;
+                            }
+                            std::thread::sleep(time::Duration::from_secs(1));
+                        }
+                    } else {
+                        match child.wait() {
+                            Ok(_) => {
+                                println!("process success exit, name: {}", &process.name);
+                            },
+                            Err(err) => {
+                                println!("process failed exit, name: {}", &process.name);
+                            }
                         }
                     }
                     // calc stop time
