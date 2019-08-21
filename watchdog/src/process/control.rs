@@ -99,7 +99,11 @@ impl CControl {
                         let s = Local::now().timestamp();
                         loop {
                             match child.try_wait() {
-                                Ok(_) => {},
+                                Ok(Some(status)) => {
+                                    println!("process normal exit, name: {}", &process.name);
+                                    break;
+                                },
+                                Ok(None) => {},
                                 Err(err) => {
                                     println!("process failed exit, name: {}", &process.name);
                                     break;
@@ -217,6 +221,7 @@ impl CControl {
             }
         };
         self.cancelProcessAuto(name, false);
+        println!("pid: {}", &pid.pid);
         if !self.kill(pid.pid) {
             // rollback
             self.cancelProcessAuto(name, true);
