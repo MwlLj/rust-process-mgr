@@ -104,7 +104,8 @@
                 "execute": string,
                 "args": [string],
                 "directory": string,
-                "isAuto": bool
+                "isAuto": bool,
+                "restartTimeS": int
             }
         ],
         "result": bool,
@@ -137,7 +138,8 @@
                 "execute": string,
                 "args": [string],
                 "directory": string,
-                "isAuto": bool
+                "isAuto": bool,
+                "restartTimeS": int
             }
         ]
     }
@@ -173,7 +175,8 @@
                 "execute": string,
                 "args": [string],
                 "directory": string,
-                "isAuto": bool
+                "isAuto": bool,
+                "restartTimeS": int
             }
         ]
     }
