@@ -9,6 +9,7 @@ use std::io::BufReader;
 use std::process::Command;
 use std::collections::VecDeque;
 use std::collections::HashMap;
+use std::env;
 
 use crate::config::Process;
 use super::kill;
@@ -45,7 +46,24 @@ impl CControl {
         let name = name.to_string();
         let mut processes = self.processes.clone();
         let mut pids = self.pids.clone();
+        // get system PATH
+        let systemPath = match env::var_os("PATH") {
+            Some(p) => {
+                match p.into_string() {
+                    Ok(path) => path,
+                    Err(err) => {
+                        println!("into_string error, err: {:?}", err);
+                        "".to_string()
+                    }
+                }
+            },
+            None => {
+                println!("var_os error");
+                "".to_string()
+            }
+        };
         std::thread::spawn(move || {
+            let mut osPath = systemPath.clone();
             loop {
                 let mut pids = pids.clone();
                 match CControl::findProcess(&processes, &name, |process: &Process| -> RunResult {
@@ -81,8 +99,11 @@ impl CControl {
                     for arg in args {
                         commond.arg(arg);
                     }
+                    // join PATH
+                    osPath.push_str(";");
+                    osPath.push_str(&process.directory);
                     let mut child = match commond
-                    .env("PATH", &process.directory)
+                    .env("PATH", &osPath)
                     .current_dir(&process.directory)
                     .spawn() {
                         Ok(c) => c,
