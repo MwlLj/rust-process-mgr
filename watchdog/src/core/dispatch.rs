@@ -47,7 +47,10 @@ impl CDispatch {
         }
         self.refreshProcesses(news);
         let (adds, updates, deletes) = compare::processCompare(news, &olds, |o: &Process, n: &Process| -> bool {
-            if o.isAuto != n.isAuto {
+            if o.isAuto != n.isAuto
+            || o.execute != n.execute
+            || o.directory != n.directory
+            || o.args != n.args {
                 return true;
             }
             return false;
