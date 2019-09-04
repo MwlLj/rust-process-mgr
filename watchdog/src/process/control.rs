@@ -100,7 +100,11 @@ impl CControl {
                         commond.arg(arg);
                     }
                     // join PATH
-                    osPath.push_str(";");
+                    if cfg!(target_os="windows") {
+                        osPath.push_str(";");
+                    } else {
+                        osPath.push_str(":");
+                    }
                     osPath.push_str(&process.directory);
                     let mut child = match commond
                     .env("PATH", &osPath)
