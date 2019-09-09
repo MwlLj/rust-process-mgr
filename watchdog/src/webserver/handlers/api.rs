@@ -110,6 +110,7 @@ impl CApiHandler {
                     break;
                 }
             }
+            /*
             // let mut req: CPutReloadRequest = match serde_json::from_str(&reqStr) {
             let mut jv: JsonValue = match json::parse(&reqStr) {
                 Ok(r) => r,
@@ -134,7 +135,23 @@ impl CApiHandler {
                     }
                 };
             }
-            dispatch.reload(&mut req.processList);
+            */
+            let mut req: CPutReloadRequest = match serde_json::from_str(&reqStr) {
+                Ok(r) => r,
+                Err(err) => {
+                    println!("parse request json error, err: {}", err);
+                    res.result = false;
+                    res.status = *super::status_json_parse_error;
+                    break;
+                }
+            };
+            let mut processList = match req.processList {
+                Some(pl) => pl,
+                None => {
+                    VecDeque::new()
+                }
+            };
+            dispatch.reload(&mut processList);
             break;
         }
         res.message = super::to_message(&res.status);
@@ -155,15 +172,22 @@ impl CApiHandler {
                     break;
                 }
             }
-            // let mut req: CPutReloadRequest = match serde_json::from_str(&name) {
-            //     Ok(r) => r,
-            //     Err(err) => {
-            //         println!("parse request json error, err: {}", err);
-            //         res.result = false;
-            //         res.status = *super::status_json_parse_error;
-            //         break;
-            //     }
-            // };
+            let mut req: CPutReloadRequest = match serde_json::from_str(&reqStr) {
+                Ok(r) => r,
+                Err(err) => {
+                    println!("parse request json error, err: {}", err);
+                    res.result = false;
+                    res.status = *super::status_json_parse_error;
+                    break;
+                }
+            };
+            let mut processList = match req.processList {
+                Some(pl) => pl,
+                None => {
+                    VecDeque::new()
+                }
+            };
+            /*
             let mut jv: JsonValue = match json::parse(&reqStr) {
                 Ok(r) => r,
                 Err(err) => {
@@ -187,10 +211,11 @@ impl CApiHandler {
                     }
                 };
             }
+            */
             // save to file
             let fileOps = dispatch.fileOps();
             match fileOps.write(&ConfigInfo{
-                processList: req.processList.clone()
+                processList: Some(processList.clone())
             }) {
                 Ok(_) => {},
                 Err(err) => {
@@ -200,7 +225,8 @@ impl CApiHandler {
                     break;
                 }
             }
-            dispatch.reload(&mut req.processList);
+            // dispatch.reload(&mut req.processList);
+            dispatch.reload(&mut processList);
             break;
         }
         res.message = super::to_message(&res.status);

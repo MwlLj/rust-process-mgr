@@ -120,33 +120,47 @@ impl CControl {
                     let pid = child.id() as i32;
                     // running
                     CControl::replacePid(pids.clone(), &name, pid, ProcessStatus::Running);
-                    if process.restartTimeS > 0 {
-                        let s = Local::now().timestamp();
-                        loop {
-                            match child.try_wait() {
-                                Ok(Some(status)) => {
-                                    println!("process normal exit, name: {}", &process.name);
-                                    break;
-                                },
-                                Ok(None) => {},
-                                Err(err) => {
-                                    println!("process failed exit, name: {}", &process.name);
-                                    break;
+                    match process.restartTimeS {
+                        Some(timeS) => {
+                            if timeS > 0 {
+                            let s = Local::now().timestamp();
+                                loop {
+                                    match child.try_wait() {
+                                        Ok(Some(status)) => {
+                                            println!("process normal exit, name: {}", &process.name);
+                                            break;
+                                        },
+                                        Ok(None) => {},
+                                        Err(err) => {
+                                            println!("process failed exit, name: {}", &process.name);
+                                            break;
+                                        }
+                                    }
+                                    if Local::now().timestamp() - s >= timeS {
+                                        println!("process restartTime timeout, name: {}", &process.name);
+                                        break;
+                                    }
+                                    std::thread::sleep(time::Duration::from_secs(1));
+                                }
+                            } else {
+                                match child.wait() {
+                                    Ok(_) => {
+                                        println!("process success exit, name: {}", &process.name);
+                                    },
+                                    Err(err) => {
+                                        println!("process failed exit, name: {}", &process.name);
+                                    }
                                 }
                             }
-                            if Local::now().timestamp() - s >= process.restartTimeS {
-                                println!("process restartTime timeout, name: {}", &process.name);
-                                break;
-                            }
-                            std::thread::sleep(time::Duration::from_secs(1));
-                        }
-                    } else {
-                        match child.wait() {
-                            Ok(_) => {
-                                println!("process success exit, name: {}", &process.name);
-                            },
-                            Err(err) => {
-                                println!("process failed exit, name: {}", &process.name);
+                        },
+                        None => {
+                            match child.wait() {
+                                Ok(_) => {
+                                    println!("process success exit, name: {}", &process.name);
+                                },
+                                Err(err) => {
+                                    println!("process failed exit, name: {}", &process.name);
+                                }
                             }
                         }
                     }

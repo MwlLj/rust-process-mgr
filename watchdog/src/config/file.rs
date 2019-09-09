@@ -25,7 +25,7 @@ impl CFile {
     pub fn read(&self) -> Result<(ConfigInfo, String), &str> {
         let processes: VecDeque<Process> = VecDeque::new();
         let mut configInfo = ConfigInfo{
-            processList: processes
+            processList: Some(processes)
         };
         let mut buf = String::new();
         if !Path::new(&self.path).exists() {
@@ -42,8 +42,7 @@ impl CFile {
                 "-port", "50005"
             ],
             "directory": ".",
-            "isAuto": true,
-            "restartTimeS": 0
+            "isAuto": true
         }
     ]
 }"#;

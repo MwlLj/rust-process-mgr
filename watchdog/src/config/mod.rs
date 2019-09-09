@@ -10,12 +10,12 @@ pub struct Process {
     pub args: Vec<String>,
     pub directory: String,
     pub isAuto: bool,
-    pub restartTimeS: i64
+    pub restartTimeS: Option<i64>
 }
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ConfigInfo {
-    pub processList: VecDeque<Process>
+    pub processList: Option<VecDeque<Process>>
 }
 
 pub mod file;

@@ -134,7 +134,7 @@ impl CDispatch {
                 return None;
             }
         };
-        Some(configInfo.0.processList)
+        configInfo.0.processList
     }
 
     fn refreshProcesses(&mut self, pros: &mut VecDeque<Process>) {

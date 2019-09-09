@@ -50,7 +50,7 @@ impl std::default::Default for CDefaultResponse {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CGetAllConfigResponse {
-    pub data: VecDeque<Process>,
+    pub data: Option<VecDeque<Process>>,
     pub result: bool,
     pub status: i32,
     pub message: String
@@ -115,7 +115,7 @@ impl std::default::Default for CGetAllProcessStatusResponse {
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct CPutReloadRequest {
-    pub processList: VecDeque<Process>
+    pub processList: Option<VecDeque<Process>>
 }
 
 pub mod auth;
