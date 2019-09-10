@@ -371,9 +371,15 @@ impl CControl {
         system.refresh_all();
         let processes = system.get_process_by_name(name);
         for process in processes {
-            // println!("process cmd: {:?}\nargs: {:?}\nprocess exe: {:?}, dir: {:?}", &process.cmd()[1..].to_vec(), &args, process.root(), Path::new(dir));
+            let processDir = match process.exe().parent() {
+                Some(d) => d,
+                None => {
+                    continue;
+                }
+            };
+            // println!("process cmd: {:?}\nargs: {:?}\nprocess exe: {:?}\ndir: {:?}", &process.cmd()[1..].to_vec(), &args, processDir, Path::new(dir));
             if &process.cmd()[1..].to_vec() == args
-            && process.root() == Path::new(dir) {
+            && processDir == Path::new(dir) {
                 println!("process starting ..., kill");
                 process.kill(sysinfo::Signal::Kill);
             }
