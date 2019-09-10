@@ -1,21 +1,21 @@
+use crate::config::Process;
+use super::kill;
+use super::ProcessStatus;
+
+use sysinfo::{ProcessExt, SystemExt, System};
 use chrono::prelude::*;
-use std::sync::{Arc, Mutex};
 
 use std::thread;
 use std::time;
 use std::io::prelude::*;
 use std::fs::File;
+use std::path::Path;
 use std::io::BufReader;
 use std::process::Command;
 use std::collections::VecDeque;
 use std::collections::HashMap;
 use std::env;
-
-use crate::config::Process;
-use super::kill;
-use super::ProcessStatus;
-
-
+use std::sync::{Arc, Mutex};
 use std::fs::OpenOptions;
 
 enum RunResult {
@@ -38,7 +38,8 @@ type PidMapping = Arc<Mutex<HashMap<String, CPid>>>;
 
 pub struct CControl {
     processes: ProcessVec,
-    pids: PidMapping
+    pids: PidMapping,
+    system: Arc<Mutex<System>>
 }
 
 impl CControl {
@@ -46,6 +47,7 @@ impl CControl {
         let name = name.to_string();
         let mut processes = self.processes.clone();
         let mut pids = self.pids.clone();
+        let mut system = self.system.clone();
         // get system PATH
         let systemPath = match env::var_os("PATH") {
             Some(p) => {
@@ -96,7 +98,7 @@ impl CControl {
                         }
                     }
                     let mut commond = Command::new(execute);
-                    for arg in args {
+                    for arg in &args {
                         commond.arg(arg);
                     }
                     // join PATH
@@ -106,6 +108,7 @@ impl CControl {
                         osPath.push_str(":");
                     }
                     osPath.push_str(&process.directory);
+                    CControl::killStartedProcess(system.clone(), &name, &args, &process.directory);
                     let mut child = match commond
                     .env("PATH", &osPath)
                     .current_dir(&process.directory)
@@ -345,7 +348,8 @@ impl CControl {
         // CControl::writeLog(&(String::from("watchdog start, time: ") + &Local::now().timestamp().to_string() + "\n"));
         let ctrl = CControl{
             processes: processes,
-            pids: Arc::new(Mutex::new(HashMap::new()))
+            pids: Arc::new(Mutex::new(HashMap::new())),
+            system: Arc::new(Mutex::new(sysinfo::System::new()))
         };
         ctrl
     }
@@ -354,6 +358,25 @@ impl CControl {
 impl CControl {
     fn kill(&self, pid: i32) -> bool {
         kill::kill(pid, kill::Signal::Kill)
+    }
+
+    fn killStartedProcess(system: Arc<Mutex<System>>, name: &str, args: &Vec<String>, dir: &str) {
+        let mut system = match system.lock() {
+            Ok(s) => s,
+            Err(err) => {
+                println!("system lock error, err: {}", err);
+                return;
+            }
+        };
+        system.refresh_all();
+        let processes = system.get_process_by_name(name);
+        for process in processes {
+            if &process.cmd().to_vec() == args
+            && process.exe() == Path::new(dir) {
+                println!("process starting ..., kill");
+                process.kill(sysinfo::Signal::Kill);
+            }
+        }
     }
 
     fn updateIsAuto(&self, name: &str, isAuto: bool) -> Result<(), &str> {

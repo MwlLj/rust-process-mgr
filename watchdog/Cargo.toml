@@ -18,6 +18,8 @@ tiny_http = { git = "https://github.com/tiny-http/tiny-http" }
 
 libc = "0.2"
 
+sysinfo = "0.8.5"
+
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["fileapi", "handleapi", "ioapiset", "minwindef", "pdh", "psapi", "synchapi", "sysinfoapi", "tlhelp32", "winbase", "winerror", "winioctl", "winnt"] }
 
