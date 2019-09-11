@@ -100,7 +100,7 @@ impl CControl {
                             args = args[1..].to_vec();
                         }
                     }
-                    let mut commond = Command::new(execute);
+                    let mut commond = Command::new(execute.clone());
                     for arg in &args {
                         commond.arg(arg);
                     }
@@ -112,7 +112,7 @@ impl CControl {
                     }
                     osPath.push_str(&process.directory);
                     #[cfg(not(target_os="windows"))]
-                    CControl::killStartedProcess(system.clone(), &name, &args, &process.directory);
+                    CControl::killStartedProcess(system.clone(), &execute, &args, &process.directory);
                     // CControl::killStartedProcess(system.clone(), &name, &args, &process.directory);
                     let mut child = match commond
                     .env("PATH", &osPath)
