@@ -267,6 +267,13 @@ impl CControl {
                 return Err("findPid error");
             }
         };
+        match pid.status {
+            ProcessStatus::Running => {
+            },
+            _ => {
+                return Err("process is not running");
+            }
+        };
         self.cancelProcessAuto(name, false);
         println!("pid: {}", &pid.pid);
         if !self.kill(pid.pid) {
