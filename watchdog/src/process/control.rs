@@ -324,6 +324,13 @@ impl CControl {
                 return Ok(());
             }
         };
+        match pid.status {
+            ProcessStatus::Running => {
+            },
+            _ => {
+                return Err("process is not running");
+            }
+        };
         if !self.kill(pid.pid) {
             return Err("kill error");
         }
