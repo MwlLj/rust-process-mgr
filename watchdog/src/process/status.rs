@@ -132,9 +132,12 @@ impl CStatus {
             procStatrTime = pro.start_time() as i64;
         }
         */
-        let dt = Local::now();
-        let now = dt.timestamp();
-        let sub = now - procStatrTime;
+        let mut sub = 0;
+        if procStatrTime != 0 {
+            let dt = Local::now();
+            let now = dt.timestamp();
+            let sub = now - procStatrTime;
+        }
         let runTime = self.calcSec2DHMS(sub);
         Ok(CStatusInfo{
             pid: pid.pid,
