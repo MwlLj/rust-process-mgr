@@ -136,7 +136,7 @@ impl CStatus {
         if procStatrTime != 0 {
             let dt = Local::now();
             let now = dt.timestamp();
-            let sub = now - procStatrTime;
+            sub = now - procStatrTime;
         }
         let runTime = self.calcSec2DHMS(sub);
         Ok(CStatusInfo{
