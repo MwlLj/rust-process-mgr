@@ -6,7 +6,7 @@ const restartall_key: &str = "restartall";
 
 fn main() {
     let mut cmdHandler = CCmd::new();
-    let addr = cmdHandler.register_with_desc("-server", "127.0.0.1:51890", "");
+    let addr = cmdHandler.register_with_desc("-server", "127.0.0.1:51891", "");
     let stopall = cmdHandler.register_with_desc(stopall_key, "", "stop all");
     let restartall = cmdHandler.register_with_desc(restartall_key, "", "restart all");
     cmdHandler.parse();
