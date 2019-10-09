@@ -284,6 +284,20 @@ impl CControl {
         Ok(())
     }
 
+    pub fn stopProcessByAlias(&mut self, alias: &str) -> Result<(), &str> {
+        let names = self.findProcessNamesByAlias(alias);
+        let names = match &names {
+            Some(ns) => ns,
+            None => {
+                return Err("findProcessNamesByAlias error");
+            }
+        };
+        for name in names {
+            self.stopProcess(name);
+        }
+        Ok(())
+    }
+
     pub fn restartAllProcess(&mut self) {
         let mut processNames = Vec::new();
         {
@@ -333,6 +347,20 @@ impl CControl {
         };
         if !self.kill(pid.pid) {
             return Err("kill error");
+        }
+        Ok(())
+    }
+
+    pub fn restartProcessByAlias(&mut self, alias: &str) -> Result<(), &str> {
+        let names = self.findProcessNamesByAlias(alias);
+        let names = match &names {
+            Some(ns) => ns,
+            None => {
+                return Err("findProcessNamesByAlias error");
+            }
+        };
+        for name in names {
+            self.restartProcess(name);
         }
         Ok(())
     }
@@ -492,6 +520,26 @@ impl CControl {
             }
         };
         file.write(content.as_bytes());
+    }
+
+    fn findProcessNamesByAlias(&self, alias: &str) -> Option<Vec<String>> {
+        /*
+        ** Find all process information by alias
+        */
+        let mut processNames = Vec::new();
+        match self.processes.lock() {
+            Ok(p) => {
+                for process in p.iter() {
+                    if process.alias == alias {
+                        processNames.push(process.name.clone());
+                    }
+                }
+            },
+            Err(err) => {
+                return None;
+            }
+        }
+        Some(processNames)
     }
 }
 

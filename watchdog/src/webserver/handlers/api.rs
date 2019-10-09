@@ -39,6 +39,26 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
+    pub fn handleStopProcessByAlias(&self, dispatch: &mut CDispatch, mut request: Request) {
+        let mut res = CDefaultResponse::default();
+        loop {
+            let alias = self.findHeader(&request.headers(), header_name);
+            if alias == "" {
+                res.result = false;
+                res.status = *super::status_param_error;
+                break;
+            }
+            if let Err(err) = dispatch.stopProcessByAlias(&alias) {
+                res.result = false;
+                res.status = *super::status_stop_process_error;
+                break;
+            };
+            break;
+        }
+        res.message = super::to_message(&res.status);
+        request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
+    }
+
     pub fn handleRestartProcess(&self, dispatch: &mut CDispatch, mut request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
@@ -49,6 +69,26 @@ impl CApiHandler {
                 break;
             }
             if let Err(err) = dispatch.restartProcess(&name) {
+                res.result = false;
+                res.status = *super::status_restart_process_error;
+                break;
+            };
+            break;
+        }
+        res.message = super::to_message(&res.status);
+        request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
+    }
+
+    pub fn handleRestartProcessByAlias(&self, dispatch: &mut CDispatch, mut request: Request) {
+        let mut res = CDefaultResponse::default();
+        loop {
+            let alias = self.findHeader(&request.headers(), header_name);
+            if alias == "" {
+                res.result = false;
+                res.status = *super::status_param_error;
+                break;
+            }
+            if let Err(err) = dispatch.restartProcess(&alias) {
                 res.result = false;
                 res.status = *super::status_restart_process_error;
                 break;
@@ -253,7 +293,8 @@ impl CApiHandler {
                 pid: status.pid,
                 runTime: status.runTime,
                 status: process::to_status_desc(&status.status),
-                name: status.name
+                name: status.name,
+                alias: status.alias
             };
             break;
         }
@@ -276,7 +317,8 @@ impl CApiHandler {
                     pid: status.pid,
                     runTime: status.runTime,
                     status: process::to_status_desc(&status.status),
-                    name: status.name
+                    name: status.name,
+                    alias: status.alias
                 });
             }
             break;

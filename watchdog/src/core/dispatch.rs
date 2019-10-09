@@ -97,6 +97,20 @@ impl CDispatch {
         Ok(())
     }
 
+    pub fn stopProcessByAlias(&mut self, alias: &str) -> Result<(), &str> {
+        let mut ctrl = match self.processCtrl.lock() {
+            Ok(c) => c,
+            Err(err) => {
+                println!("process ctrl lock error, err: {}", err);
+                return Err("process ctrl lock error");
+            }
+        };
+        if let Err(err) = ctrl.stopProcessByAlias(alias) {
+            return Err("stop process error");
+        };
+        Ok(())
+    }
+
     pub fn restartAllProcess(&mut self) {
         self.processCtrl.lock().unwrap().restartAllProcess();
     }
@@ -110,6 +124,20 @@ impl CDispatch {
             }
         };
         if let Err(err) = ctrl.restartProcess(name) {
+            return Err("restart process error");
+        };
+        Ok(())
+    }
+
+    pub fn restartProcessByAlias(&mut self, alias: &str) -> Result<(), &str> {
+        let mut ctrl = match self.processCtrl.lock() {
+            Ok(c) => c,
+            Err(err) => {
+                println!("process ctrl lock error, err: {}", err);
+                return Err("process ctrl lock error");
+            }
+        };
+        if let Err(err) = ctrl.restartProcessByAlias(alias) {
             return Err("restart process error");
         };
         Ok(())

@@ -213,7 +213,8 @@
             "pid": int,
             "runTime": string,
             "status": string,
-            "name": string
+            "name": string,
+            "alias": string
         },
         "result": bool,
         "status": int,
@@ -239,7 +240,8 @@
                 "pid": int,
                 "runTime": string,
                 "status": string,
-                "name": string
+                "name": string,
+                "alias": string
             }
         ],
         "result": bool,
@@ -249,6 +251,44 @@
     ```
 - **desc**:
     ```
+    ```
+
+### 10. 通过别名停止进程
+- **method**: DELETE
+- **topic**: /stop/by/alias
+- **header**:
+    | key | value |
+    | --- | ----- |
+    | name | 进程别名 |
+- **request**: None
+- **response**:
+    - **format**: json
+    - **body**:
+    ```
+    {
+        "result": bool,
+        "status": int,
+        "message": string
+    }
+    ```
+
+### 11. 通过别名重启进程
+- **method**: PUT
+- **topic**: /restart/by/alias
+- **header**:
+    | key | value |
+    | --- | ----- |
+    | name | 进程别名 |
+- **request**: None
+- **response**:
+    - **format**: json
+    - **body**:
+    ```
+    {
+        "result": bool,
+        "status": int,
+        "message": string
+    }
     ```
 
 

@@ -50,6 +50,10 @@ impl CServer {
                 self.apiHandler.handleStopProcess(&mut self.dispatch, request);
             } else if *method == Method::Put && url == "/api/restart" {
                 self.apiHandler.handleRestartProcess(&mut self.dispatch, request);
+            } else if *method == Method::Delete && url == "/api/stop/by/alias" {
+                self.apiHandler.handleStopProcessByAlias(&mut self.dispatch, request);
+            } else if *method == Method::Put && url == "/api/restart/by/alias" {
+                self.apiHandler.handleRestartProcessByAlias(&mut self.dispatch, request);
             } else if *method == Method::Delete && url == "/api/stop/all" {
                 self.apiHandler.handleStopAllProcess(&mut self.dispatch, request);
             } else if *method == Method::Put && url == "/api/restart/all" {

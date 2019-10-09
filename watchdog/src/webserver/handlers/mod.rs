@@ -72,7 +72,8 @@ pub struct CStatus {
     pub pid: i32,
     pub runTime: String,
     pub status: String,
-    pub name: String
+    pub name: String,
+    pub alias: String
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
