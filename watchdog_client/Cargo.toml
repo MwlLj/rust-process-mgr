@@ -12,3 +12,6 @@ version = "0.5"
 [dependencies.rust_parse]
 git = "https://github.com/MwlLj/rust_parse"
 version = "0.1.13"
+
+[dependencies.json_pretty]
+version = "0.1.2"
