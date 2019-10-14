@@ -56,7 +56,13 @@ impl CStatus {
                 }
             };
             for process in pros.iter() {
-                processNames.push((process.name.to_string(), process.alias.to_string()));
+                let alias = match &process.alias {
+                    Some(a) => a.to_string(),
+                    None => {
+                        "".to_string()
+                    }
+                };
+                processNames.push((process.name.to_string(), alias));
             }
         }
         let mut statuses = Vec::new();

@@ -94,7 +94,7 @@ fn startNewProcessTest() {
     let name = "test1";
     let process = Process {
         name: name.to_string(),
-        alias: "test1".to_string(),
+        alias: Some("test1".to_string()),
         execute: "test".to_string(),
         args: Vec::new(),
         directory: ".".to_string(),

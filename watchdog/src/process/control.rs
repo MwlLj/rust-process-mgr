@@ -530,7 +530,13 @@ impl CControl {
         match self.processes.lock() {
             Ok(p) => {
                 for process in p.iter() {
-                    if process.alias == alias {
+                    let ali = match &process.alias {
+                        Some(a) => a,
+                        None => {
+                            continue;
+                        }
+                    };
+                    if ali == alias {
                         processNames.push(process.name.clone());
                     }
                 }
