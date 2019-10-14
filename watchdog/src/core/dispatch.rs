@@ -9,6 +9,11 @@ use std::sync::{Arc, Mutex};
 use std::collections::VecDeque;
 use std::thread;
 use std::time;
+use std::io::Error;
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+#[cfg(not(target_os="windows"))]
+use signal_hook::flag as signal_flag;
 
 use std::io::prelude::*;
 use std::fs::OpenOptions;
@@ -16,8 +21,13 @@ use std::fs::OpenOptions;
 type ProcessVec = Arc<Mutex<VecDeque<Process>>>;
 type ProcessCtrl = Arc<Mutex<control::CControl>>;
 
-pub struct CDispatch { path: String, processes: ProcessVec, fileOps:
-file::CFile, processCtrl: ProcessCtrl, processStatus: status::CStatus }
+pub struct CDispatch {
+    path: String,
+    processes: ProcessVec,
+    fileOps: file::CFile,
+    processCtrl: ProcessCtrl,
+    processStatus: status::CStatus
+}
 
 impl CDispatch {
     pub fn start(&mut self) {
@@ -31,6 +41,8 @@ impl CDispatch {
         // start processes
         // thread::sleep(time::Duration::from_secs(3));
         self.processCtrl.lock().unwrap().startAllProcess();
+        #[cfg(not(target_os="windows"))]
+        self.signalListen(self.processCtrl.clone());
     }
 
     pub fn reload(&mut self, news: &mut VecDeque<Process>) {
@@ -163,6 +175,41 @@ impl CDispatch {
             }
         };
         configInfo.0.processList
+    }
+
+    #[cfg(not(target_os="windows"))]
+    fn signalListen(&self, pt: ProcessCtrl) {
+        thread::spawn(|| {
+            let term = Arc::new(AtomicUsize::new(0));
+            const SIGTERM: usize = signal_hook::SIGTERM as usize;
+            const SIGINT: usize = signal_hook::SIGINT as usize;
+            const SIGQUIT: usize = signal_hook::SIGQUIT as usize;
+            signal_flag::register_usize(signal_hook::SIGTERM, Arc::clone(&term), SIGTERM).unwrap();
+            signal_flag::register_usize(signal_hook::SIGINT, Arc::clone(&term), SIGINT).unwrap();
+            signal_flag::register_usize(signal_hook::SIGQUIT, Arc::clone(&term), SIGQUIT).unwrap();
+
+            loop {
+                match term.load(Ordering::Relaxed) {
+                    0 => {
+                        // Do some useful stuff here
+                    }
+                    SIGTERM
+                    | SIGQUIT
+                    | SIGINT => {
+                        eprintln!("Terminating on the TERM signal");
+                        match pt.lock() {
+                            Ok(p) => {
+                                pt.stopAllProcess();
+                            },
+                            Err(err) => {
+                            }
+                        };
+                        break;
+                    }
+                    _ => unreachable!(),
+                }
+            }
+        });
     }
 
     fn refreshProcesses(&mut self, pros: &mut VecDeque<Process>) {

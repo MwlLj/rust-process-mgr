@@ -21,6 +21,9 @@ libc = "0.2"
 [target.'cfg(all(not(target_os="windows"), not(target_arch="arm")))'.dependencies]
 sysinfo = "0.8.5"
 
+[target.'cfg(not(target_os="windows"))'.dependencies]
+signal-hook = "0.1.10"
+
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["fileapi", "handleapi", "ioapiset", "minwindef", "pdh", "psapi", "synchapi", "sysinfoapi", "tlhelp32", "winbase", "winerror", "winioctl", "winnt"] }
 
