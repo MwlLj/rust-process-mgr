@@ -45,7 +45,7 @@ impl CDispatch {
             let mut processes = match self.processes.lock() {
                 Ok(p) => p,
                 Err(err) => {
-                    print!("processes lock error, err: {}", err);
+                    println!("processes lock error, err: {}", err);
                     return;
                 }
             };
