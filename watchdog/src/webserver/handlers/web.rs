@@ -8,7 +8,7 @@ pub struct CWebHandler {
 }
 
 impl CWebHandler {
-    pub fn handleStopProcess(&self, dispatch: &mut CDispatch, mut request: Request) {
+    pub fn handleStopProcess(dispatch: &mut CDispatch, mut request: Request) {
         loop {
             let mut name = String::new();
             match request.as_reader().read_to_string(&mut name) {
@@ -24,7 +24,7 @@ impl CWebHandler {
         }
     }
 
-    pub fn handleRestartProcess(&self, dispatch: &mut CDispatch, mut request: Request) {
+    pub fn handleRestartProcess(dispatch: &mut CDispatch, mut request: Request) {
         loop {
             let mut name = String::new();
             match request.as_reader().read_to_string(&mut name) {
@@ -40,14 +40,14 @@ impl CWebHandler {
         }
     }
 
-    pub fn handleStopAllProcess(&self, dispatch: &mut CDispatch, request: Request) {
+    pub fn handleStopAllProcess(dispatch: &mut CDispatch, request: Request) {
         loop {
             dispatch.stopAllProcess();
             break;
         }
     }
 
-    pub fn handleRestartAllProcess(&self, dispatch: &mut CDispatch, request: Request) {
+    pub fn handleRestartAllProcess(dispatch: &mut CDispatch, request: Request) {
         loop {
             dispatch.restartAllProcess();
             break;

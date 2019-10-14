@@ -7,9 +7,9 @@ pub struct CAuthHandler {
 }
 
 impl CAuthHandler {
-    pub fn handler<F>(&self, inUser: &str, inPwd: &str, request: Request, f: F) -> bool
+    pub fn handler<F>(inUser: &str, inPwd: &str, request: Request, f: F) -> bool
         where F: FnOnce(Request) {
-        let auth = self.findHeader(&request.headers(), authorization);
+        let auth = CAuthHandler::findHeader(&request.headers(), authorization);
         // println!("{:?}", auth);
         if *request.method() == Method::Get && auth == "" {
             let h = Header::from_bytes("WWW-Authenticate", r#"Basic realm="Dotcoo User Login""#).unwrap();
@@ -60,7 +60,7 @@ impl CAuthHandler {
 }
 
 impl CAuthHandler {
-    fn findHeader(&self, headers: &[Header], key: &'static str) -> String {
+    fn findHeader(headers: &[Header], key: &'static str) -> String {
         let mut value = String::new();
         for item in headers {
             if item.field.equiv(key) {

@@ -19,10 +19,10 @@ pub struct CApiHandler {
 }
 
 impl CApiHandler {
-    pub fn handleStopProcess(&self, dispatch: &mut CDispatch, mut request: Request) {
+    pub fn handleStopProcess(dispatch: &mut CDispatch, mut request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
-            let name = self.findHeader(&request.headers(), header_name);
+            let name = CApiHandler::findHeader(&request.headers(), header_name);
             if name == "" {
                 res.result = false;
                 res.status = *super::status_param_error;
@@ -39,10 +39,10 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleStopProcessByAlias(&self, dispatch: &mut CDispatch, mut request: Request) {
+    pub fn handleStopProcessByAlias(dispatch: &mut CDispatch, mut request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
-            let alias = self.findHeader(&request.headers(), header_name);
+            let alias = CApiHandler::findHeader(&request.headers(), header_name);
             if alias == "" {
                 res.result = false;
                 res.status = *super::status_param_error;
@@ -59,10 +59,10 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleRestartProcess(&self, dispatch: &mut CDispatch, mut request: Request) {
+    pub fn handleRestartProcess(dispatch: &mut CDispatch, mut request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
-            let name = self.findHeader(&request.headers(), header_name);
+            let name = CApiHandler::findHeader(&request.headers(), header_name);
             if name == "" {
                 res.result = false;
                 res.status = *super::status_param_error;
@@ -79,10 +79,10 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleRestartProcessByAlias(&self, dispatch: &mut CDispatch, mut request: Request) {
+    pub fn handleRestartProcessByAlias(dispatch: &mut CDispatch, mut request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
-            let alias = self.findHeader(&request.headers(), header_name);
+            let alias = CApiHandler::findHeader(&request.headers(), header_name);
             if alias == "" {
                 res.result = false;
                 res.status = *super::status_param_error;
@@ -99,7 +99,7 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleStopAllProcess(&self, dispatch: &mut CDispatch, request: Request) {
+    pub fn handleStopAllProcess(dispatch: &mut CDispatch, request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
             dispatch.stopAllProcess();
@@ -109,7 +109,7 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleRestartAllProcess(&self, dispatch: &mut CDispatch, request: Request) {
+    pub fn handleRestartAllProcess(dispatch: &mut CDispatch, request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
             dispatch.restartAllProcess();
@@ -119,7 +119,7 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleGetAllConfig(&self, fileOps: &file::CFile, request: Request) {
+    pub fn handleGetAllConfig(fileOps: &file::CFile, request: Request) {
         let mut res = CGetAllConfigResponse::default();
         loop {
             match fileOps.read() {
@@ -136,7 +136,7 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleReload(&self, dispatch: &mut CDispatch, mut request: Request) {
+    pub fn handleReload(dispatch: &mut CDispatch, mut request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
             let mut reqStr = String::new();
@@ -198,7 +198,7 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleSaveBeforeReload(&self, dispatch: &mut CDispatch, mut request: Request) {
+    pub fn handleSaveBeforeReload(dispatch: &mut CDispatch, mut request: Request) {
         let mut res = CDefaultResponse::default();
         loop {
             let mut reqStr = String::new();
@@ -273,10 +273,10 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleGetOneStatusRequest(&self, dispatch: &CDispatch, request: Request) {
+    pub fn handleGetOneStatusRequest(dispatch: &CDispatch, request: Request) {
         let mut res = CGetOneProcessStatusResponse::default();
         loop {
-            let name = self.findHeader(&request.headers(), header_name);
+            let name = CApiHandler::findHeader(&request.headers(), header_name);
             if name == "" {
                 res.result = false;
                 res.status = *super::status_param_error;
@@ -302,7 +302,7 @@ impl CApiHandler {
         request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
     }
 
-    pub fn handleGetAllStatusRequest(&self, dispatch: &CDispatch, request: Request) {
+    pub fn handleGetAllStatusRequest(dispatch: &CDispatch, request: Request) {
         let mut res = CGetAllProcessStatusResponse::default();
         loop {
             let statuses = match dispatch.getAllRunStatus() {
@@ -329,7 +329,7 @@ impl CApiHandler {
 }
 
 impl CApiHandler {
-    fn findHeader(&self, headers: &[Header], key: &'static str) -> String {
+    fn findHeader(headers: &[Header], key: &'static str) -> String {
         let mut value = String::new();
         for item in headers {
             if item.field.equiv(key) {

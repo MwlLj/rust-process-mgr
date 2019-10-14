@@ -8,7 +8,7 @@ pub struct CIndexHandler {
 }
 
 impl CIndexHandler {
-    pub fn handler(&self, dispatch: &CDispatch, request: Request) {
+    pub fn handler(dispatch: &CDispatch, request: Request) {
         let mut content = String::new();
         content.push_str(html::htmlStartDefine);
         loop {
