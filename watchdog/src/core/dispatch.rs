@@ -89,7 +89,7 @@ impl CDispatch {
         self.processCtrl.lock().unwrap().stopAllProcess();
     }
 
-    pub fn stopProcess(&mut self, name: &str) -> Result<(), &str> {
+    pub fn stopProcess(&mut self, name: &str) -> Result<ProcessVec, &str> {
         let mut ctrl = match self.processCtrl.lock() {
             Ok(c) => c,
             Err(err) => {
@@ -97,10 +97,14 @@ impl CDispatch {
                 return Err("process ctrl lock error");
             }
         };
-        if let Err(err) = ctrl.stopProcess(name) {
-            return Err("stop process error");
+        match ctrl.stopProcess(name) {
+            Ok(c) => {
+                return Ok(c);
+            },
+            Err(err) => {
+                return Err("stop process error");
+            }
         };
-        Ok(())
     }
 
     pub fn stopProcessByAlias(&mut self, alias: &str) -> Result<(), &str> {
@@ -121,7 +125,7 @@ impl CDispatch {
         self.processCtrl.lock().unwrap().restartAllProcess();
     }
 
-    pub fn restartProcess(&mut self, name: &str) -> Result<(), &str> {
+    pub fn restartProcess(&mut self, name: &str) -> Result<ProcessVec, &str> {
         let mut ctrl = match self.processCtrl.lock() {
             Ok(c) => c,
             Err(err) => {
@@ -129,10 +133,14 @@ impl CDispatch {
                 return Err("process ctrl lock error");
             }
         };
-        if let Err(err) = ctrl.restartProcess(name) {
-            return Err("restart process error");
+        match ctrl.restartProcess(name) {
+            Ok(c) => {
+                return Ok(c);
+            },
+            Err(err) => {
+                return Err("restart process error");
+            }
         };
-        Ok(())
     }
 
     pub fn restartProcessByAlias(&mut self, alias: &str) -> Result<(), &str> {

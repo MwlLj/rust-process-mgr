@@ -259,7 +259,7 @@ impl CControl {
         }
     }
 
-    pub fn stopProcess(&mut self, name: &str) -> Result<(), &str> {
+    pub fn stopProcess(&mut self, name: &str) -> Result<ProcessVec, &str> {
         let pid = match self.findPid(name) {
             Some(p) => p,
             None => {
@@ -281,7 +281,7 @@ impl CControl {
             self.cancelProcessAuto(name, true);
             return Err("kill error");
         }
-        Ok(())
+        Ok(self.processes.clone())
     }
 
     pub fn stopProcessByAlias(&mut self, alias: &str) -> Result<(), &str> {
@@ -317,7 +317,7 @@ impl CControl {
         }
     }
 
-    pub fn restartProcess(&mut self, name: &str) -> Result<(), &str> {
+    pub fn restartProcess(&mut self, name: &str) -> Result<ProcessVec, &str> {
         let pid = match self.findPid(name) {
             Some(p) => {
             	match p.status {
@@ -326,7 +326,7 @@ impl CControl {
 		                println!("process Failed or QuickExit, restart, name: {}", name);
 		                self.updateIsAuto(name, true);
 		                self.startNewProcess(name);
-		                return Ok(());
+		                return Ok(self.processes.clone());
             		},
             		_ => p
             	}
@@ -335,7 +335,7 @@ impl CControl {
                 println!("process is not exist, name: {}", name);
                 self.updateIsAuto(name, true);
                 self.startNewProcess(name);
-                return Ok(());
+                return Ok(self.processes.clone());
             }
         };
         match pid.status {
@@ -348,7 +348,7 @@ impl CControl {
         if !self.kill(pid.pid) {
             return Err("kill error");
         }
-        Ok(())
+        Ok(self.processes.clone())
     }
 
     pub fn restartProcessByAlias(&mut self, alias: &str) -> Result<(), &str> {

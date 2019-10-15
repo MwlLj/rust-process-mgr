@@ -78,8 +78,12 @@ impl CServer {
                     web::CWebHandler::handleRestartAllProcess(&mut dispatch, request);
                 } else if *method == Method::Delete && url == "/api/stop" {
                     api::CApiHandler::handleStopProcess(&mut dispatch, request);
+                } else if *method == Method::Delete && url == "/api/stop/with/config" {
+                    api::CApiHandler::handleStopProcessWithConfig(&mut dispatch, request);
                 } else if *method == Method::Put && url == "/api/restart" {
                     api::CApiHandler::handleRestartProcess(&mut dispatch, request);
+                } else if *method == Method::Put && url == "/api/restart/with/config" {
+                    api::CApiHandler::handleRestartProcessWithConfig(&mut dispatch, request);
                 } else if *method == Method::Delete && url == "/api/stop/by/alias" {
                     api::CApiHandler::handleStopProcessByAlias(&mut dispatch, request);
                 } else if *method == Method::Put && url == "/api/restart/by/alias" {

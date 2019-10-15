@@ -291,6 +291,44 @@
     }
     ```
 
+### 12. 停止进程并且更新配置文件
+- **method**: DELETE
+- **topic**: /stop/with/config
+- **header**:
+    | key | value |
+    | --- | ----- |
+    | name | 进程名称 |
+- **request**: None
+- **response**:
+    - **format**: json
+    - **body**:
+    ```
+    {
+        "result": bool,
+        "status": int,
+        "message": string
+    }
+    ```
+
+### 13. 重启进程并且更新配置文件
+- **method**: PUT
+- **topic**: /restart/with/config
+- **header**:
+    | key | value |
+    | --- | ----- |
+    | name | 进程名称 |
+- **request**: None
+- **response**:
+    - **format**: json
+    - **body**:
+    ```
+    {
+        "result": bool,
+        "status": int,
+        "message": string
+    }
+    ```
+
 
 ## 四. 常量
 ### 1. 进程状态

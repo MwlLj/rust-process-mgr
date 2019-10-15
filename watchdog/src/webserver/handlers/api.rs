@@ -28,6 +28,50 @@ impl CApiHandler {
                 res.status = *super::status_param_error;
                 break;
             }
+            let ps = match dispatch.stopProcess(&name) {
+                Ok(p) => p,
+                Err(err) => {
+                    res.result = false;
+                    res.status = *super::status_stop_process_error;
+                    break;
+                }
+            };
+            let ps = match ps.lock() {
+                Ok(p) => p,
+                Err(err) => {
+                    res.result = false;
+                    res.status = *super::status_stop_process_error;
+                    break;
+                }
+            };
+            // save to file
+            let fileOps = dispatch.fileOps();
+            match fileOps.write(&ConfigInfo{
+                processList: Some(ps.clone())
+            }) {
+                Ok(_) => {},
+                Err(err) => {
+                    println!("write to file error, err: {}", err);
+                    res.result = false;
+                    res.status = *super::status_file_rw_error;
+                    break;
+                }
+            }
+            break;
+        }
+        res.message = super::to_message(&res.status);
+        request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
+    }
+
+    pub fn handleStopProcessWithConfig(dispatch: &mut CDispatch, mut request: Request) {
+        let mut res = CDefaultResponse::default();
+        loop {
+            let name = CApiHandler::findHeader(&request.headers(), header_name);
+            if name == "" {
+                res.result = false;
+                res.status = *super::status_param_error;
+                break;
+            }
             if let Err(err) = dispatch.stopProcess(&name) {
                 res.result = false;
                 res.status = *super::status_stop_process_error;
@@ -73,6 +117,50 @@ impl CApiHandler {
                 res.status = *super::status_restart_process_error;
                 break;
             };
+            break;
+        }
+        res.message = super::to_message(&res.status);
+        request.respond(Response::from_data(serde_json::to_string(&res).unwrap().as_bytes()));
+    }
+
+    pub fn handleRestartProcessWithConfig(dispatch: &mut CDispatch, mut request: Request) {
+        let mut res = CDefaultResponse::default();
+        loop {
+            let name = CApiHandler::findHeader(&request.headers(), header_name);
+            if name == "" {
+                res.result = false;
+                res.status = *super::status_param_error;
+                break;
+            }
+            let ps = match dispatch.restartProcess(&name) {
+                Ok(p) => p,
+                Err(err) => {
+                    res.result = false;
+                    res.status = *super::status_restart_process_error;
+                    break;
+                }
+            };
+            let ps = match ps.lock() {
+                Ok(p) => p,
+                Err(err) => {
+                    res.result = false;
+                    res.status = *super::status_restart_process_error;
+                    break;
+                }
+            };
+            // save to file
+            let fileOps = dispatch.fileOps();
+            match fileOps.write(&ConfigInfo{
+                processList: Some(ps.clone())
+            }) {
+                Ok(_) => {},
+                Err(err) => {
+                    println!("write to file error, err: {}", err);
+                    res.result = false;
+                    res.status = *super::status_file_rw_error;
+                    break;
+                }
+            }
             break;
         }
         res.message = super::to_message(&res.status);
