@@ -144,7 +144,7 @@ impl CServer {
             match term.load(Ordering::Relaxed) {
                 0 => {
                     // Do some useful stuff here
-                    time::Duration::from_millis(1000);
+                    std::thread::sleep(time::Duration::from_millis(1000));
                 },
                 SIGTERM
                 | SIGQUIT
@@ -161,7 +161,7 @@ impl CServer {
                 }
                 _ => {
                     // unreachable!(),
-                    time::Duration::from_millis(1000);
+                    std::thread::sleep(time::Duration::from_millis(1000));
                 }
             }
         }
