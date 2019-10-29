@@ -2,8 +2,8 @@ use crate::config::Process;
 use super::kill;
 use super::ProcessStatus;
 
-// #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
-// use sysinfo::{ProcessExt, SystemExt, System};
+#[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
+use sysinfo::{ProcessExt, SystemExt, System};
 use chrono::prelude::*;
 
 use std::thread;
@@ -40,8 +40,8 @@ type PidMapping = Arc<Mutex<HashMap<String, CPid>>>;
 pub struct CControl {
     processes: ProcessVec,
     pids: PidMapping,
-    // #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
-    // system: Arc<Mutex<System>>
+    #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
+    system: Arc<Mutex<System>>
 }
 
 impl CControl {
@@ -49,8 +49,8 @@ impl CControl {
         let name = name.to_string();
         let mut processes = self.processes.clone();
         let mut pids = self.pids.clone();
-        // #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
-        // let mut system = self.system.clone();
+        #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
+        let mut system = self.system.clone();
         // get system PATH
         let systemPath = match env::var_os("PATH") {
             Some(p) => {
@@ -111,8 +111,8 @@ impl CControl {
                         osPath.push_str(":");
                     }
                     osPath.push_str(&process.directory);
-                    // #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
-                    // CControl::killStartedProcess(system.clone(), &execute, &args, &process.directory);
+                    #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
+                    CControl::killStartedProcess(system.clone(), &execute, &args, &process.directory);
                     // CControl::killStartedProcess(system.clone(), &name, &args, &process.directory);
                     let mut child = match commond
                     .env("PATH", &osPath)
@@ -396,8 +396,8 @@ impl CControl {
         let ctrl = CControl{
             processes: processes,
             pids: Arc::new(Mutex::new(HashMap::new())),
-            // #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
-            // system: Arc::new(Mutex::new(sysinfo::System::new()))
+            #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
+            system: Arc::new(Mutex::new(sysinfo::System::new()))
         };
         ctrl
     }
@@ -408,7 +408,6 @@ impl CControl {
         kill::kill(pid, kill::Signal::Kill)
     }
 
-    /*
     #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
     fn killStartedProcess(system: Arc<Mutex<System>>, name: &str, args: &Vec<String>, dir: &str) {
         let mut system = match system.lock() {
@@ -435,7 +434,6 @@ impl CControl {
             }
         }
     }
-    */
 
     fn updateIsAuto(&self, name: &str, isAuto: bool) -> Result<(), &str> {
         let mut pros = match self.processes.lock() {
