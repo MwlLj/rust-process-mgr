@@ -2,8 +2,8 @@ use crate::config::Process;
 use super::kill;
 use super::ProcessStatus;
 
-#[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
-use sysinfo::{ProcessExt, SystemExt, System};
+// #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
+// use sysinfo::{ProcessExt, SystemExt, System};
 use chrono::prelude::*;
 
 use std::thread;
@@ -40,8 +40,8 @@ type PidMapping = Arc<Mutex<HashMap<String, CPid>>>;
 pub struct CControl {
     processes: ProcessVec,
     pids: PidMapping,
-    #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
-    system: Arc<Mutex<System>>
+    // #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
+    // system: Arc<Mutex<System>>
 }
 
 impl CControl {
@@ -111,8 +111,8 @@ impl CControl {
                         osPath.push_str(":");
                     }
                     osPath.push_str(&process.directory);
-                    #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
-                    CControl::killStartedProcess(system.clone(), &execute, &args, &process.directory);
+                    // #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
+                    // CControl::killStartedProcess(system.clone(), &execute, &args, &process.directory);
                     // CControl::killStartedProcess(system.clone(), &name, &args, &process.directory);
                     let mut child = match commond
                     .env("PATH", &osPath)
@@ -396,8 +396,8 @@ impl CControl {
         let ctrl = CControl{
             processes: processes,
             pids: Arc::new(Mutex::new(HashMap::new())),
-            #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
-            system: Arc::new(Mutex::new(sysinfo::System::new()))
+            // #[cfg(all(not(target_os="windows"), not(target_arch="arm")))]
+            // system: Arc::new(Mutex::new(sysinfo::System::new()))
         };
         ctrl
     }
