@@ -111,8 +111,8 @@ impl CServer {
                 }
             }
         });
-        #[cfg(not(target_os="windows"))]
-        self.signalListen(self.dispatch.clone());
+        // #[cfg(not(target_os="windows"))]
+        // self.signalListen(self.dispatch.clone());
         Ok(())
 	}
 
