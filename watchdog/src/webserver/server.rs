@@ -159,7 +159,10 @@ impl CServer {
                     };
                     break;
                 }
-                _ => unreachable!(),
+                _ => {
+                    // unreachable!(),
+                    time::Duration::from_millis(1000);
+                }
             }
         }
     }
