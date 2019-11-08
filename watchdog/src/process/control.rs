@@ -271,7 +271,7 @@ impl CControl {
             ProcessStatus::Running => {
             },
             _ => {
-                return Err("process is not running");
+                return Ok(self.processes.clone());
             }
         };
         self.cancelProcessAuto(name, false);
