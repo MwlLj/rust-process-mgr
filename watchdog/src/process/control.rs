@@ -264,7 +264,8 @@ impl CControl {
             Some(p) => p,
             None => {
                 println!("findPid error");
-                return Err("findPid error");
+                // return Err("findPid error");
+                return Ok(self.processes.clone());
             }
         };
         match pid.status {
