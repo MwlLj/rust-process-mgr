@@ -114,6 +114,11 @@ impl CServer {
         });
         #[cfg(not(target_os="windows"))]
         self.signalListen(self.dispatch.clone());
+        if cfg!(target_os="windows") {
+            loop {
+                thread::sleep(time::Duration::from_secs(60));
+            }
+        }
         Ok(())
 	}
 
