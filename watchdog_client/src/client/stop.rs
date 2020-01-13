@@ -40,9 +40,8 @@ pub fn stop<'a>(addr: &'a str, name: &str) -> Result<(), &'a str> {
     url.push_str(stop_url);
     let uri: Uri = url.parse().unwrap();
     let mut writer = Vec::new();
-    let n = urlencoding::encode(name);
     let response = match Request::new(&uri).method(Method::DELETE)
-    .header(header_name, &n)
+    .header(header_name, name)
     .send(&mut writer) {
         Ok(r) => r,
         Err(err) => {
@@ -60,8 +59,9 @@ pub fn stop_by_alias<'a>(addr: &'a str, name: &str) -> Result<(), &'a str> {
     url.push_str(stop_by_alias_url);
     let uri: Uri = url.parse().unwrap();
     let mut writer = Vec::new();
+    let n = urlencoding::encode(name);
     let response = match Request::new(&uri).method(Method::DELETE)
-    .header(header_name, name)
+    .header(header_name, &n)
     .send(&mut writer) {
         Ok(r) => r,
         Err(err) => {
