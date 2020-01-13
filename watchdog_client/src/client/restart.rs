@@ -62,12 +62,13 @@ pub fn restart_by_alias<'a>(addr: &'a str, name: &str) -> Result<(), &'a str> {
     let url = urldecode::decode(url);
     let uri: Uri = url.parse().unwrap();
     let mut writer = Vec::new();
+    let n = urldecode::decode(String::from(name));
     let response = match Request::new(&uri).method(Method::PUT)
-    .header(header_name, name)
+    .header(header_name, &n)
     .send(&mut writer) {
         Ok(r) => r,
         Err(err) => {
-            print!("err: {:?}", err);
+            println!("err: {:?}", err);
             return Err("send put request error");
         }
     };
