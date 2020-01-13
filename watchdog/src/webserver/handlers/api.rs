@@ -192,7 +192,7 @@ impl CApiHandler {
                 res.status = *super::status_param_error;
                 break;
             }
-            if let Err(err) = dispatch.restartProcess(&alias) {
+            if let Err(err) = dispatch.restartProcessByAlias(&alias) {
                 res.result = false;
                 res.status = *super::status_restart_process_error;
                 break;
