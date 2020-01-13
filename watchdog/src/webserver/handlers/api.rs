@@ -87,6 +87,14 @@ impl CApiHandler {
         let mut res = CDefaultResponse::default();
         loop {
             let alias = CApiHandler::findHeader(&request.headers(), header_name);
+            let alias = match urlencoding::decode(&alias) {
+                Ok(n) => n,
+                Err(err) => {
+                    res.result = false;
+                    res.status = *super::status_param_error;
+                    break;
+                }
+            };
             if alias == "" {
                 res.result = false;
                 res.status = *super::status_param_error;
@@ -171,6 +179,14 @@ impl CApiHandler {
         let mut res = CDefaultResponse::default();
         loop {
             let alias = CApiHandler::findHeader(&request.headers(), header_name);
+            let alias = match urlencoding::decode(&alias) {
+                Ok(n) => n,
+                Err(err) => {
+                    res.result = false;
+                    res.status = *super::status_param_error;
+                    break;
+                }
+            };
             if alias == "" {
                 res.result = false;
                 res.status = *super::status_param_error;
