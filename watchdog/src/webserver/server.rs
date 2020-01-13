@@ -15,7 +15,7 @@ use std::time;
 use std::io::Error;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-#[cfg(not(target_os="windows"))]
+#[cfg(not(any(target_arch="arm", target_os="windows")))]
 use signal_hook::flag as signal_flag;
 
 pub struct CServer {
@@ -112,9 +112,9 @@ impl CServer {
                 }
             }
         });
-        #[cfg(not(target_os="windows"))]
+        #[cfg(not(any(target_arch="arm", target_os="windows")))]
         self.signalListen(self.dispatch.clone());
-        if cfg!(target_os="windows") {
+        if cfg!(target_os="windows") || cfg!(target_arch="arm") {
             loop {
                 thread::sleep(time::Duration::from_secs(60));
             }
@@ -135,7 +135,7 @@ impl CServer {
 }
 
 impl CServer {
-    #[cfg(not(target_os="windows"))]
+    #[cfg(not(any(target_arch="arm", target_os="windows")))]
     fn signalListen(&self, dispatch: Arc<Mutex<CDispatch>>) {
         let term = Arc::new(AtomicUsize::new(0));
         const SIGTERM: usize = signal_hook::SIGTERM as usize;
