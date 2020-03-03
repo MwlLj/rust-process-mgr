@@ -32,26 +32,14 @@ struct CRun {
 
 impl CRun {
     fn run(mut self) {
-        let mut message = String::new();
-        message.push_str("options:\n");
-        message.push_str("\t-cfg: config file path, default watchdog.json, exp: watchdog.json\n");
-        message.push_str("\t-sleep: check sleep time, default 3000, exp: 3000\n");
-        message.push_str("\t-host: http host, default 0.0.0.0, exp: 0.0.0.0\n");
-        message.push_str("\t-port: http port, default 51000, exp: 51000\n");
-        message.push_str("\t-user: user name, default admin, exp: admin\n");
-        message.push_str("\t-pwd: http pwd, default 123456, exp: 123456\n");
-        message.push_str("\t-js-path: js path, default js/jquery-3.3.1.min.js, exp: js/jquery-3.3.1.min.js\n");
-        message.push_str("\tweb access way: http://ip:port/index\n");
-        println!("{}", message);
-
         let mut cmdHandler = CCmd::new();
-        let configFile = cmdHandler.register(argConfigFile, "watchdog.json");
-        let checkTime = cmdHandler.register(argCheckTime, "3000");
-        let httpHost = cmdHandler.register(argHttpHost, "0.0.0.0");
-        let httpPort = cmdHandler.register(argHttpPort, "51000");
-        let user = cmdHandler.register(argUser, "admin");
-        let pwd = cmdHandler.register(argPwd, "123456");
-        let jsPath = cmdHandler.register(argJsPath, "js/jquery-3.3.1.min.js");
+        let configFile = cmdHandler.register_with_desc(argConfigFile, "watchdog.json", "config file path, default watchdog.json, exp: watchdog.json");
+        let checkTime = cmdHandler.register_with_desc(argCheckTime, "3000", "check sleep time, default 3000, exp: 3000");
+        let httpHost = cmdHandler.register_with_desc(argHttpHost, "0.0.0.0", "http host, default 0.0.0.0, exp: 0.0.0.0");
+        let httpPort = cmdHandler.register_with_desc(argHttpPort, "51000", "http port, default 51000, exp: 51000");
+        let user = cmdHandler.register_with_desc(argUser, "admin", "user name, default admin, exp: admin");
+        let pwd = cmdHandler.register_with_desc(argPwd, "123456", "http pwd, default 123456, exp: 123456");
+        let jsPath = cmdHandler.register_with_desc(argJsPath, "js/jquery-3.3.1.min.js", "js path, default js/jquery-3.3.1.min.js, exp: js/jquery-3.3.1.min.js");
         cmdHandler.parse();
 
         let configFile = configFile.borrow();
@@ -69,6 +57,10 @@ impl CRun {
                 return;
             }
         };
+
+        let mut message = String::new();
+        message.push_str("\tweb access way: http://ip:port/index\n");
+        println!("{}", message);
 
         // writeLog(&(String::from("new dispatch start") + "\n"));
         let dispatch = CDispatch::new(&*configFile);
